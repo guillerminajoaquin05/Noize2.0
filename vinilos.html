@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="img/vynil.png" type="image/png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOIZE — Mundo Vinilo · Buenos Aires</title>
+<link rel="stylesheet" href="shared.css">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* HERO VINILO */
+.vinyl-hero {
+  padding:72px clamp(16px,4vw,48px) 56px;
+  background:linear-gradient(135deg,#1a0d2e 0%,var(--black) 60%,#0d1a00 100%);
+  border-bottom:1px solid var(--border); position:relative; overflow:hidden;
+}
+.vh-glow { position:absolute; border-radius:50%; pointer-events:none; }
+.vh-g1 { width:500px;height:500px;background:radial-gradient(circle,rgba(139,47,201,.18),transparent 70%);top:-150px;right:-100px; }
+.vh-g2 { width:300px;height:300px;background:radial-gradient(circle,rgba(57,255,20,.08),transparent 70%);bottom:-80px;left:60px; }
+.vinyl-hero-inner { display:grid; grid-template-columns:1fr 280px; gap:40px; align-items:center; position:relative; z-index:2; }
+.vh-disc-big {
+  width:240px; height:240px; border-radius:50%;
+  background:conic-gradient(#111 0deg,#1c1c1c 8deg,#111 16deg,#1c1c1c 24deg,#111 32deg,#1c1c1c 40deg,#111 48deg,#1c1c1c 56deg,#111 64deg,#1c1c1c 72deg,#111 80deg,#1c1c1c 88deg,#111 96deg,#1c1c1c 104deg,#111 112deg,#1c1c1c 120deg,#111 128deg,#1c1c1c 136deg,#111 144deg,#1c1c1c 152deg,#111 160deg,#1c1c1c 168deg,#111 176deg,#1c1c1c 184deg,#111 192deg,#1c1c1c 200deg,#111 208deg,#1c1c1c 216deg,#111 224deg,#1c1c1c 232deg,#111 240deg,#1c1c1c 248deg,#111 256deg,#1c1c1c 264deg,#111 272deg,#1c1c1c 280deg,#111 288deg,#1c1c1c 296deg,#111 304deg,#1c1c1c 312deg,#111 320deg,#1c1c1c 328deg,#111 336deg,#1c1c1c 344deg,#111 352deg,#1c1c1c 360deg);
+  border:2px solid rgba(192,132,252,.35); box-shadow:0 0 60px rgba(139,47,201,.3);
+  animation:spin 14s linear infinite; position:relative; margin:0 auto;
+}
+@keyframes spin { to{transform:rotate(360deg)} }
+.vh-disc-big::after {
+  content:''; position:absolute; top:50%;left:50%;transform:translate(-50%,-50%);
+  width:52px;height:52px;border-radius:50%;
+  background:radial-gradient(circle,var(--vl) 0%,var(--vd) 60%,#111 100%);
+}
+
+/* TABS */
+.tabs { display:flex; gap:0; border-bottom:1px solid var(--border); overflow-x:auto; scrollbar-width:none; }
+.tabs::-webkit-scrollbar { display:none; }
+.tab-btn {
+  font-size:11px; font-family:'Space Mono',monospace; letter-spacing:2px; text-transform:uppercase;
+  color:var(--muted); padding:14px 20px; border-bottom:2px solid transparent;
+  cursor:pointer; background:none; border-top:none; border-left:none; border-right:none;
+  white-space:nowrap; transition:color .2s, border-color .2s;
+}
+.tab-btn:hover { color:var(--text); }
+.tab-btn.active { color:var(--green); border-bottom-color:var(--green); }
+.tab-pane { display:none; }
+.tab-pane.active { display:block; }
+
+/* QUÉ ES */
+.que-es-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+.info-card { background:var(--s2); border:1px solid var(--border); border-radius:var(--r); padding:24px; }
+.info-card h3 { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:2px; margin-bottom:12px; }
+.info-card p { font-size:14px; line-height:1.75; color:rgba(240,237,232,.75); }
+.anatomy { background:var(--s2); border:1px solid var(--border); border-radius:var(--r); padding:28px; }
+.anatomy h3 { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:2px; color:var(--green); margin-bottom:20px; }
+.anatomy-item { display:flex; gap:14px; margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid var(--border); }
+.anatomy-item:last-child { border-bottom:none; margin-bottom:0; padding-bottom:0; }
+.a-num { font-family:'Bebas Neue',sans-serif; font-size:28px; color:var(--orange); width:32px; flex-shrink:0; line-height:1; }
+.a-title { font-weight:600; font-size:14px; margin-bottom:4px; }
+.a-desc { font-size:12px; color:var(--muted); line-height:1.6; }
+
+/* RESEÑAS TAB */
+.vinyl-review { background:var(--s2); border:1px solid var(--border); border-radius:var(--r); padding:22px; margin-bottom:14px; }
+.vr-header { display:flex; gap:14px; align-items:flex-start; margin-bottom:14px; }
+.vr-cover { width:64px;height:64px;border-radius:8px;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0; }
+.vr-meta { flex:1; }
+.vr-album { font-weight:700; font-size:15px; margin-bottom:2px; }
+.vr-artist { font-size:12px; color:var(--muted); font-family:'Space Mono',monospace; margin-bottom:4px; }
+.vr-details { display:flex; gap:8px; flex-wrap:wrap; }
+.vr-body { font-size:13px; line-height:1.7; color:rgba(240,237,232,.78); margin-bottom:14px; }
+.vr-footer { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+.vr-reviewer { display:flex; align-items:center; gap:8px; }
+.vr-where { font-size:11px; font-family:'Space Mono',monospace; color:var(--green); }
+
+/* GUÍA */
+.guide-steps { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:32px; }
+.guide-step { background:var(--s2); border:1px solid var(--border); border-radius:var(--r); padding:22px; }
+.step-num { font-family:'Bebas Neue',sans-serif; font-size:36px; color:var(--orange); line-height:1; margin-bottom:8px; }
+.step-title { font-weight:600; font-size:14px; margin-bottom:8px; }
+.step-body { font-size:12px; color:var(--muted); line-height:1.65; }
+
+.grading-table { width:100%; border-collapse:collapse; background:var(--s2); border-radius:var(--r); overflow:hidden; }
+.grading-table th { background:var(--s3); font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); padding:12px 16px; text-align:left; }
+.grading-table td { padding:12px 16px; border-top:1px solid var(--border); font-size:13px; vertical-align:top; }
+.grade-code { font-family:'Bebas Neue',sans-serif; font-size:20px; }
+.grade-m { color:var(--green); }
+.grade-nm { color:var(--green); }
+.grade-vg { color:var(--yellow); }
+.grade-g { color:var(--orange); }
+.grade-f { color:var(--muted); }
+
+/* DÓNDE */
+.stores-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
+.store-card { background:var(--s2); border:1px solid var(--border); border-radius:var(--r); padding:22px; }
+.store-header { display:flex; gap:12px; align-items:center; margin-bottom:14px; }
+.store-icon { width:48px;height:48px;border-radius:12px;background:var(--vd);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0; }
+.store-name { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:1px; }
+.store-type { font-size:10px; font-family:'Space Mono',monospace; color:var(--muted); letter-spacing:1px; }
+.store-info { display:flex; flex-direction:column; gap:5px; font-size:12px; color:var(--muted); }
+.store-info span { display:flex; align-items:baseline; gap:6px; }
+.store-info a { color:var(--green); text-decoration:none; }
+.store-tags { display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
+.community-tip { background:var(--green-d); border:1px solid var(--green); border-radius:8px; padding:10px 14px; margin-top:12px; font-size:12px; color:var(--text); line-height:1.5; }
+.ct-label { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--green); margin-bottom:4px; }
+
+/* online stores */
+.online-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:24px; }
+.online-item { background:var(--s2); border:1px solid var(--border); border-radius:var(--r); padding:16px; text-align:center; }
+.online-item a { text-decoration:none; color:var(--green); font-family:'Space Mono',monospace; font-size:11px; }
+
+@media(max-width:900px) {
+  .vinyl-hero-inner { grid-template-columns:1fr; }
+  .que-es-grid { grid-template-columns:1fr; }
+  .guide-steps { grid-template-columns:1fr 1fr; }
+  .stores-grid { grid-template-columns:1fr; }
+  .online-grid { grid-template-columns:1fr 1fr; }
+}
+@media(max-width:640px) {
+  .guide-steps { grid-template-columns:1fr; }
+  .online-grid { grid-template-columns:1fr; }
+  .vh-disc-big { width:160px; height:160px; }
+}
+</style>
+</head>
+<body>
+<div class="cur-dot"></div>
+<div class="cur-ring"></div>
+<nav style="display: flex; gap: 24px; padding: 16px clamp(16px, 4vw, 48px); border-bottom: 1px solid var(--border); background: var(--s1); align-items: center; justify-content: flex-start; width: 100%;">
+  
+  <a href="index.html" style="color: var(--green); font-family: 'Bebas Neue', sans-serif; font-size: clamp(24px, 3vw, 32px); text-decoration: none; letter-spacing: 4px; line-height: 1;">
+    NOIZE
+  </a>
+  
+  <div style="display: flex; gap: clamp(12px, 2vw, 24px); align-items: center; font-family: 'Space Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;">
+    <a href="index.html" style="color: var(--text); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--text)'">Inicio</a>
+    <a href="resenas.html" style="color: var(--text); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--text)'">Reseñas</a>
+    <a href="agenda.html" style="color: var(--text); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--text)'">Agenda</a>
+    <a href="mapa.html" style="color: var(--text); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--text)'">Mapa</a>
+    <a href="vinilos.html" style="color: var(--text); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--text)'">Vinilos</a>
+    <a href="perfil.html" style="color: var(--text); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--text)'">Perfil</a>
+  </div>
+  
+  <a href="login.html" style="margin-left: auto; color: var(--green); font-family: 'Space Mono', monospace; font-size: 11px; text-transform: uppercase; text-decoration: none; letter-spacing: 1px; border: 1px solid var(--green); padding: 6px 14px; border-radius: 8px; transition: background 0.2s, color 0.2s;" onmouseover="this.style.background='var(--green)'; this.style.color='#000'" onmouseout="this.style.background='none'; this.style.color='var(--green)'">
+    Ingresar
+  </a>
+
+</nav>
+<div id="ticker-root"></div>
+
+<!-- VINYL HERO -->
+<div class="vinyl-hero">
+  <div class="vh-glow vh-g1"></div>
+  <div class="vh-glow vh-g2"></div>
+  <div class="vinyl-hero-inner">
+    <div>
+      <div class="eyebrow">◆ universo analógico · buenos aires</div>
+      <h1 class="h1" style="color:var(--vl);">MUNDO VINILO</h1>
+      <p style="font-size:16px;color:rgba(240,237,232,.65);line-height:1.85;max-width:480px;">Todo lo que necesitás saber sobre vinilos. Guías para coleccionistas, reseñas de discos, dónde conseguirlos en Buenos Aires y por qué el sonido analógico no tiene comparación.</p>
+    </div>
+    <div style="display:flex;justify-content:center;">
+      <img src="img/vinilo.gif" alt="Vinilo girando" style="width: 240px; height: 240px; border-radius: 50%; box-shadow: 0 0 60px rgba(139,47,201,0.3); object-fit: cover;">
+      
+    </div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs" id="vinyl-tabs">
+  <button class="tab-btn active" onclick="switchTab('que-es',this)">¿Qué es un vinilo?</button>
+  <button class="tab-btn" onclick="switchTab('resenas',this)">reseñas de discos</button>
+  <button class="tab-btn" onclick="switchTab('guia',this)">guía de compra</button>
+  <button class="tab-btn" onclick="switchTab('donde',this)">dónde conseguirlos</button>
+</div>
+
+<section class="section">
+
+  <!-- TAB: QUÉ ES -->
+  <div class="tab-pane active" id="tab-que-es">
+    <div class="eyebrow">◆ introducción</div>
+    <h2 class="h1" style="margin-bottom:28px;">¿Qué es un vinilo?</h2>
+
+    <div class="que-es-grid" style="margin-bottom:24px;">
+      <div class="info-card">
+        <h3 style="color:var(--green);">📻 Cómo funciona</h3>
+        <p>Un disco de vinilo es un soporte analógico de policloruro de vinilo (PVC) con surcos grabados en espiral. Una aguja de zafiro recorre esos surcos y sus vibraciones se amplifican para producir sonido. A diferencia del audio digital, que convierte el sonido en datos binarios, el vinilo captura las ondas sonoras de forma continua — de ahí su calidez característica.</p>
+      </div>
+      <div class="info-card">
+        <h3 style="color:var(--orange);">🎵 Por qué suena diferente</h3>
+        <p>El audio digital (MP3, streaming) comprime y elimina frecuencias que el oído humano teóricamente no percibe. El vinilo conserva todo el espectro de sonido original, incluidas frecuencias ultra-graves y agudas. Esto produce la "calidez" analógica: más profundidad, naturalidad y presencia. El crackle característico, lejos de ser un defecto, se volvió parte de la identidad sonora del formato.</p>
+      </div>
+      <div class="info-card">
+        <h3 style="color:var(--vl);">📈 El boom del vinilo</h3>
+        <p>Desde 2008 las ventas de vinilos crecen ininterrumpidamente. En 2023 los vinilos superaron en ventas a los CDs por segunda vez consecutiva desde los 80s. En Argentina, el fenómeno se aceleró post-pandemia: ferias de discos, apertura de nuevas disquerías y un público joven que descubre el formato por primera vez.</p>
+      </div>
+      <div class="info-card">
+        <h3 style="color:var(--yellow);">🎛️ Qué necesitás para empezar</h3>
+        <p>Para escuchar vinilos necesitás: 1) una bandeja giradiscos (desde $80.000 para entrar en Argentina), 2) un amplificador con entrada phono o un phono pre-amp, 3) parlantes pasivos o activos. Las marcas más accesibles para empezar son Audio-Technica (AT-LP120), Pro-Ject (Debut Carbon) y Rega (Planar 1).</p>
+      </div>
+    </div>
+
+    <div class="anatomy">
+      <h3>ANATOMÍA DE UN VINILO</h3>
+      <div class="anatomy-item">
+        <div class="a-num">01</div>
+        <div><div class="a-title">Surco en espiral</div><div class="a-desc">El audio está grabado como ondulaciones microscópicas en un surco continuo que va del borde al centro. En un disco de 33 rpm el surco mide unos 500 metros de largo.</div></div>
+      </div>
+      <div class="anatomy-item">
+        <div class="a-num">02</div>
+        <div><div class="a-title">La aguja (stylus)</div><div class="a-desc">Generalmente de zafiro o diamante. Recorre el surco sin tocarlo completamente — las oscilaciones laterales generan señal eléctrica. Una aguja desgastada puede dañar permanentemente tus discos.</div></div>
+      </div>
+      <div class="anatomy-item">
+        <div class="a-num">03</div>
+        <div><div class="a-title">Velocidades: 33, 45 y 78 rpm</div><div class="a-desc">Los LP (long play) usan 33 rpm. Los singles usan 45 rpm (más volumen y calidad por menos duración). Los 78 rpm son discos históricos de shellac, anteriores al vinilo moderno.</div></div>
+      </div>
+      <div class="anatomy-item">
+        <div class="a-num">04</div>
+        <div><div class="a-title">Peso: 140g vs 180g</div><div class="a-desc">Los vinilos de 180g (audiophile weight) son más rígidos, vibran menos y ofrecen mejor reproducción. Las reediciones premium casi siempre usan 180g. Un buen indicador de calidad en la guía de compra.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: RESEÑAS -->
+  <div class="tab-pane" id="tab-resenas">
+    <div class="eyebrow">◆ crítica musical analógica</div>
+    <h2 class="h1" style="margin-bottom:28px;">Reseñas de discos en vinilo</h2>
+
+    <div class="vinyl-review">
+      <div class="vr-header">
+        <div class="vr-cover" style="overflow: hidden; background: none;">
+  <img src="img/kind-of-blue.jpg" alt="Portada Kind of Blue" style="width: 100%; height: 100%; object-fit: cover;">
+</div>
+        <div class="vr-meta">
+          <div class="vr-album">Kind of Blue</div>
+          <div class="vr-artist">Miles Davis · Columbia Records · 1959</div>
+          <div class="vr-details">
+            <span class="tag tag-jazz">jazz</span>
+            <span class="tag" style="background:var(--green-d);color:var(--green);border:1px solid var(--green);">primera prensa</span>
+          </div>
+        </div>
+        <div class="stars" style="font-size:18px;flex-shrink:0;">★★★★★</div>
+      </div>
+      <div class="vr-body">"El álbum de jazz más vendido de la historia, y en vinilo original se entiende por qué. El piano de Evans tiene una presencia que ningún streaming puede capturar. La dinámica entre instrumentos es perfecta — podés escuchar la reverb de la sala. Encontré una primera prensa en estado VG+ en Eureka Records por $18.000. Para quien colecciona jazz, es el disco que no puede faltar."</div>
+      <div class="vr-footer">
+        <div class="vr-reviewer">
+          <div class="avatar av-y">LS</div>
+          <div><div style="font-weight:600;font-size:13px;">Lauti S.</div><div style="font-size:10px;color:var(--muted);font-family:'Space Mono',monospace;">@lautisonic</div></div>
+        </div>
+        <div class="vr-where">📍 conseguido en: Eureka Records, CABA</div>
+      </div>
+    </div>
+
+    <div class="vinyl-review">
+      <div class="vr-header">
+        <div class="vr-cover" style="overflow: hidden; background: none;">
+  <img src="img/fleetwood-mac.jpg" alt="Portada fleetwood-mac" style="width: 100%; height: 100%; object-fit: cover;">
+</div>
+        <div class="vr-meta">
+          <div class="vr-album">Rumours</div>
+          <div class="vr-artist">Fleetwood Mac · Warner · 1977 / reedición 2024</div>
+          <div class="vr-details">
+            <span class="tag tag-rock">rock</span>
+            <span class="tag tag-pop">soft rock</span>
+            <span class="tag" style="background:var(--vd);color:var(--vl);border:1px solid var(--violet);">180g reedición</span>
+          </div>
+        </div>
+        <div class="stars" style="font-size:18px;flex-shrink:0;">★★★★★</div>
+      </div>
+      <div class="vr-body">"Compré la reedición de 180g de Rhino Records en Zuvela Discos. El prensado es impecable — sin ruido de fondo, limpio desde la primera vuelta. 'The Chain' tiene una profundidad de bajo que en streaming suena plano. 'Go Your Own Way' con la batería en vinilo es otra experiencia. Para arrancar una colección, este es EL disco. También se consigue en Zivals si no lo encuentran en Zuvela."</div>
+      <div class="vr-footer">
+        <div class="vr-reviewer">
+          <div class="avatar av-v">VP</div>
+          <div><div style="font-weight:600;font-size:13px;">Vale P.</div><div style="font-size:10px;color:var(--muted);font-family:'Space Mono',monospace;">@valepop</div></div>
+        </div>
+        <div class="vr-where">📍 conseguido en: Zuvela Discos, Palermo</div>
+      </div>
+    </div>
+
+    <div class="vinyl-review">
+      <div class="vr-header">
+       <div class="vr-cover" style="overflow: hidden; background: none;">
+  <img src="img/In the Aeroplane Over the Sea.jpg" alt="Portada In the Aeroplane Over the Sea" style="width: 100%; height: 100%; object-fit: cover;">
+</div>
+        <div class="vr-meta">
+          <div class="vr-album">In the Aeroplane Over the Sea</div>
+          <div class="vr-artist">Neutral Milk Hotel · Merge Records · 1998 / reedición 2018</div>
+          <div class="vr-details">
+            <span class="tag tag-indie">indie folk</span>
+            <span class="tag" style="background:var(--green-d);color:var(--green);border:1px solid var(--green);">cult classic</span>
+          </div>
+        </div>
+        <div class="stars" style="font-size:18px;flex-shrink:0;">★★★★★</div>
+      </div>
+      <div class="vr-body">"Uno de esos discos que cambia cómo escuchás música. En vinilo la grabación lo-fi cobra otra dimensión — la imperfección es intencional y en este formato se abraza mejor. Las trompetas de 'Holland, 1945' te sacuden. Lo encontré en Mercurio Discos en Boedo, había dos copias de la reedición de Merge. Si lo ven, no lo piensen."</div>
+      <div class="vr-footer">
+        <div class="vr-reviewer">
+          <div class="avatar av-g">MN</div>
+          <div><div style="font-weight:600;font-size:13px;">Mati N.</div><div style="font-size:10px;color:var(--muted);font-family:'Space Mono',monospace;">@matinoise</div></div>
+        </div>
+        <div class="vr-where">📍 conseguido en: Mercurio Discos, Boedo</div>
+      </div>
+    </div>
+
+    <div class="vinyl-review">
+      <div class="vr-header">
+        <div class="vr-cover" style="overflow: hidden; background: none;">
+  <img src="img/Random access memory.jpg" alt="Portada Random access memory" style="width: 100%; height: 100%; object-fit: cover;">
+</div>
+        <div class="vr-meta">
+          <div class="vr-album">Random Access Memories</div>
+          <div class="vr-artist">Daft Punk · Columbia Records · 2013</div>
+          <div class="vr-details">
+            <span class="tag tag-electro">electrónica</span>
+            <span class="tag tag-pop">disco</span>
+            <span class="tag" style="background:var(--vd);color:var(--vl);border:1px solid var(--violet);">doble LP</span>
+          </div>
+        </div>
+        <div class="stars" style="font-size:18px;flex-shrink:0;">★★★★★</div>
+      </div>
+      <div class="vr-body">"La electrónica en vinilo es un debate — ¿tiene sentido? Con este disco la respuesta es sí, definitivamente. La producción de Daft Punk es tan meticulosa que en vinilo se notan capas que en streaming desaparecen. 'Giorgio by Moroder' es de otro planeta. Disco doble, así que necesitás levantar la aguja a mitad del lado — eso forma parte de la experiencia. Lo conseguí en Abraxas en Microcentro, importado."</div>
+      <div class="vr-footer">
+        <div class="vr-reviewer">
+          <div class="avatar av-o">FR</div>
+          <div><div style="font-weight:600;font-size:13px;">Fran R.</div><div style="font-size:10px;color:var(--muted);font-family:'Space Mono',monospace;">@franrec</div></div>
+        </div>
+        <div class="vr-where">📍 conseguido en: Abraxas, Microcentro</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: GUÍA -->
+  <div class="tab-pane" id="tab-guia">
+    <div class="eyebrow">◆ para coleccionistas</div>
+    <h2 class="h1" style="margin-bottom:28px;">Guía de compra</h2>
+
+    <div class="guide-steps">
+      <div class="guide-step">
+        <div class="step-num">01</div>
+        <div class="step-title">Inspeccioná el estado</div>
+        <div class="step-body">Sacá el disco de la funda y miralo con luz lateral. Los rayones profundos (que se sienten con la uña) afectan el sonido. El polvo y la suciedad superficial se pueden limpiar. Un disco que "se ve mal" puede sonar perfecto; uno que "se ve bien" puede tener problemas internos.</div>
+      </div>
+      <div class="guide-step">
+        <div class="step-num">02</div>
+        <div class="step-title">Entendé las siglas de estado</div>
+        <div class="step-body">M = Mint (sin uso), NM = Near Mint (casi perfecto), VG+ = muy bueno con uso mínimo, VG = bueno (audible surface noise), G = malo. Para colección buscá NM o VG+. Los G solo si son rarezas imposibles de conseguir de otra forma.</div>
+      </div>
+      <div class="guide-step">
+        <div class="step-num">03</div>
+        <div class="step-title">Prensa original vs reedición</div>
+        <div class="step-body">Las primeras prensas tienen la masterización original del productor y mayor valor histórico y económico. Las reediciones modernas de 180g pueden sonar igual o mejor en equipos nuevos. Para empezar, las reediciones son la mejor relación calidad-precio.</div>
+      </div>
+      <div class="guide-step">
+        <div class="step-num">04</div>
+        <div class="step-title">Verificá el pressing en Discogs</div>
+        <div class="step-body">Buscá el disco en discogs.com antes de comprar. Vas a encontrar todas las prensas de ese álbum, de qué país, de qué año, con qué matriz, y a qué precio se vendieron las últimas copias. Es el Mercado Libre de los vinilos y la mejor referencia de precios del mundo.</div>
+      </div>
+      <div class="guide-step">
+        <div class="step-num">05</div>
+        <div class="step-title">Revisá la cubierta y el inner sleeve</div>
+        <div class="step-body">El artwork también tiene valor. Una cubierta en VG+ vale más que una en G aunque el disco suene igual. Las fundas internas originales (especialmente las de papel o las que tienen letras) son parte del valor del pressing. Nunca tires las fundas internas.</div>
+      </div>
+      <div class="guide-step">
+        <div class="step-num">06</div>
+        <div class="step-title">Cómo limpiar un vinilo</div>
+        <div class="step-body">El método más económico: líquido limpiador específico + cepillo antiestático de fibra de carbono ($ 8.000-15.000 en Argentina). Para colecciones grandes: máquinas de limpieza ultrasónica. Nunca usés agua sin limpiar la aguja después. Un vinilo limpio puede ser la diferencia entre placer y crackle.</div>
+      </div>
+    </div>
+
+    <h3 style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:var(--green);margin-bottom:16px;">TABLA DE GRADING</h3>
+    <table class="grading-table">
+      <thead>
+        <tr>
+          <th>GRADO</th>
+          <th>NOMBRE</th>
+          <th>DESCRIPCIÓN</th>
+          <th>PRECIO RELATIVO</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><div class="grade-code grade-m">M</div></td>
+          <td>Mint</td>
+          <td>Perfecto, sin tocar, generalmente aún sellado.</td>
+          <td>100% del precio</td>
+        </tr>
+        <tr>
+          <td><div class="grade-code grade-nm">NM</div></td>
+          <td>Near Mint</td>
+          <td>Prácticamente perfecto, mínimas marcas de uso. Suena impecable.</td>
+          <td>85-95%</td>
+        </tr>
+        <tr>
+          <td><div class="grade-code grade-vg">VG+</div></td>
+          <td>Very Good Plus</td>
+          <td>Pocas marcas superficiales, mínimo surface noise. Excelente para colección.</td>
+          <td>60-75%</td>
+        </tr>
+        <tr>
+          <td><div class="grade-code grade-vg">VG</div></td>
+          <td>Very Good</div>
+          <td>Marcas visibles, algo de crackle audible pero no molesto. Bueno para escuchar.</td>
+          <td>35-55%</td>
+        </tr>
+        <tr>
+          <td><div class="grade-code grade-g">G+</div></td>
+          <td>Good Plus</td>
+          <td>Crackle y ruido audibles. Solo si es una rareza irremplazable.</td>
+          <td>15-25%</td>
+        </tr>
+        <tr>
+          <td><div class="grade-code grade-f">F/P</div></td>
+          <td>Fair / Poor</td>
+          <td>Daño severo. Evitar salvo como placeholder decorativo.</td>
+          <td>5-10%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- TAB: DÓNDE -->
+  <div class="tab-pane" id="tab-donde">
+    <div class="eyebrow">◆ Buenos Aires · guía de disquerías</div>
+    <h2 class="h1" style="margin-bottom:28px;">Dónde conseguirlos</h2>
+
+    <div class="stores-grid">
+
+      <div class="store-card">
+        <div class="store-header">
+          <div class="store-icon">🎸</div>
+          <div>
+            <div class="store-name">Eureka Records</div>
+            <div class="store-type">DISQUERÍA · USADOS Y NUEVOS</div>
+          </div>
+        </div>
+        <div class="store-info">
+          <span>📍 Av. Corrientes 1690, CABA (Congreso)</span>
+          <span>🕐 Lun-Sáb 10:00–20:00</span>
+          <span>💰 Precios: $5.000–$80.000+</span>
+          <span>⭐ <span style="color:var(--orange);">★★★★★</span> comunidad NOIZE</span>
+        </div>
+        <div class="store-tags">
+          <span class="tag tag-rock">rock clásico</span>
+          <span class="tag tag-jazz">jazz</span>
+          <span class="tag tag-pop">pop</span>
+          <span class="tag tag-indie">importados</span>
+        </div>
+        <div class="community-tip">
+          <div class="ct-label">◈ TIP DE LA COMUNIDAD</div>
+          "La mejor relación calidad-precio de BsAs. Los martes renuevan stock. Preguntale a Eduardo si querés algo específico — tiene un catálogo mental increíble." — @lautisonic
+        </div>
+      </div>
+
+      <div class="store-card">
+        <div class="store-header">
+          <div class="store-icon">🎵</div>
+          <div>
+            <div class="store-name">Zuvela Discos</div>
+            <div class="store-type">DISQUERÍA · ROCK E IMPORTADOS</div>
+          </div>
+        </div>
+        <div class="store-info">
+          <span>📍 Honduras 4800, Palermo</span>
+          <span>🕐 Mar-Dom 12:00–20:00</span>
+          <span>💰 Precios: $8.000–$120.000+</span>
+          <span>⭐ <span style="color:var(--orange);">★★★★★</span> comunidad NOIZE</span>
+        </div>
+        <div class="store-tags">
+          <span class="tag tag-rock">rock argentino</span>
+          <span class="tag tag-rock">hard rock</span>
+          <span class="tag tag-indie">importados</span>
+        </div>
+        <div class="community-tip">
+          <div class="ct-label">◈ TIP DE LA COMUNIDAD</div>
+          "Especialistas en rock nacional e importados de Europa. El mejor lugar para conseguir discos de artistas argentinos que ya no se consiguen en ningún lado." — @jrock99
+        </div>
+      </div>
+
+      <div class="store-card">
+        <div class="store-header">
+          <div class="store-icon">📚</div>
+          <div>
+            <div class="store-name">Zivals</div>
+            <div class="store-type">DISQUERÍA · LIBRERÍA MUSICAL</div>
+          </div>
+        </div>
+        <div class="store-info">
+          <span>📍 Av. Callao 395, CABA (Tribunales)</span>
+          <span>🕐 Lun-Sáb 09:00–21:00, Dom 12:00–20:00</span>
+          <span>💰 Precios: $12.000–$200.000+</span>
+          <span>⭐ <span style="color:var(--orange);">★★★★☆</span> comunidad NOIZE</span>
+          <span><a href="https://zivals.com.ar" target="_blank">zivals.com.ar →</a></span>
+        </div>
+        <div class="store-tags">
+          <span class="tag tag-jazz">clásica</span>
+          <span class="tag tag-jazz">jazz</span>
+          <span class="tag tag-pop">pop internacional</span>
+          <span class="tag" style="background:var(--vd);color:var(--vl);border:1px solid var(--violet);">libros</span>
+        </div>
+        <div class="community-tip">
+          <div class="ct-label">◈ TIP DE LA COMUNIDAD</div>
+          "La más grande y variada de Buenos Aires. Tiene sección de clásica y jazz que no encontrás en ningún otro lado. Los precios son más altos que en Eureka pero el stock de importados es increíble." — @solvibes
+        </div>
+      </div>
+
+      <div class="store-card">
+        <div class="store-header">
+          <div class="store-icon">🪐</div>
+          <div>
+            <div class="store-name">Mercurio Discos</div>
+            <div class="store-type">DISQUERÍA · USADOS Y RAREZAS</div>
+          </div>
+        </div>
+        <div class="store-info">
+          <span>📍 Av. Boedo 847, Boedo</span>
+          <span>🕐 Mar-Sáb 11:00–19:00</span>
+          <span>💰 Precios: $3.000–$50.000</span>
+          <span>⭐ <span style="color:var(--orange);">★★★★☆</span> comunidad NOIZE</span>
+        </div>
+        <div class="store-tags">
+          <span class="tag tag-indie">indie</span>
+          <span class="tag tag-rock">rock alternativo</span>
+          <span class="tag tag-jazz">jazz</span>
+          <span class="tag" style="background:var(--green-d);color:var(--green);border:1px solid var(--green);">usados</span>
+        </div>
+        <div class="community-tip">
+          <div class="ct-label">◈ TIP DE LA COMUNIDAD</div>
+          "El mejor lugar para encontrar rarezas y usados baratos. Hay que tener paciencia pero las joyas aparecen. Es como buscar en una feria pero con discos curados." — @matinoise
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ONLINE -->
+    <h3 style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:var(--green);margin:32px 0 16px;">TAMBIÉN ONLINE</h3>
+    <div class="online-grid">
+      <div class="online-item">
+        <div style="font-size:24px;margin-bottom:8px;">🌐</div>
+        <div style="font-weight:600;font-size:14px;margin-bottom:4px;">Discogs</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">El marketplace global de vinilos. Millones de discos, precios de referencia y vendedores de todo el mundo.</div>
+        <a href="https://www.discogs.com" target="_blank" rel="noopener">discogs.com →</a>
+      </div>
+      <div class="online-item">
+        <div style="font-size:24px;margin-bottom:8px;">🛒</div>
+        <div style="font-weight:600;font-size:14px;margin-bottom:4px;">MercadoLibre</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">Vendedores argentinos con stock local. Buscá "vinilo + [artista]". Cuidado con los precios inflados — chequeá en Discogs antes.</div>
+        <a href="https://www.mercadolibre.com.ar" target="_blank" rel="noopener">mercadolibre.com.ar →</a>
+      </div>
+      <div class="online-item">
+        <div style="font-size:24px;margin-bottom:8px;">🎵</div>
+        <div style="font-weight:600;font-size:14px;margin-bottom:4px;">Bandcamp</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">Muchos artistas independientes venden ediciones limitadas directamente. El mejor canal para apoyar artistas y conseguir vinilos especiales.</div>
+        <a href="https://bandcamp.com" target="_blank" rel="noopener">bandcamp.com →</a>
+      </div>
+    </div>
+
+    <!-- FERIAS -->
+    <h3 style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:var(--orange);margin:32px 0 16px;">FERIAS DE VINILOS EN BSAS</h3>
+    <div class="info-card" style="margin-bottom:12px;">
+      <h3 style="color:var(--orange);font-size:16px;">🎪 Feria del Vinilo — La Rural, Palermo</h3>
+      <p>La feria más grande de Argentina, con ediciones primavera y otoño. Más de 50 vendedores, jazz en vivo, food trucks. Entrada libre. Seguí <span style="color:var(--green);font-family:'Space Mono',monospace;">@feriadelvinilo</span> en Instagram para próximas fechas.</p>
+    </div>
+    <div class="info-card">
+      <h3 style="color:var(--vl);font-size:16px;">🎵 Feria de Mataderos — Av. de los Corrales, Mataderos</h3>
+      <p>Los domingos hay un sector dedicado a discos y vinilos usados. Muy variado, muy barato, hay que tener paciencia. Se combina perfectamente con la feria artesanal y el folclore en vivo.</p>
+    </div>
+  </div>
+
+</section>
+
+<div id="footer-root"></div>
+<script src="shared.js"></script>
+<script>
+initPage('vinilos.html');
+
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>

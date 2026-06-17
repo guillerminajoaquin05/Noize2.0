@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="vynil.png" type="image/png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOIZE — Ingresar</title>
+<link rel="stylesheet" href="shared.css">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+.auth-page {
+  min-height:100vh;
+  display:flex; align-items:center; justify-content:center;
+  padding:24px; position:relative; overflow:hidden;
+}
+.auth-bg {
+  position:absolute; inset:0; pointer-events:none;
+  background-image:radial-gradient(rgba(57,255,20,.06) 1px, transparent 1px);
+  background-size:44px 44px;
+}
+.auth-glow1 { position:absolute; width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(139,47,201,.12),transparent 70%);top:-150px;right:-100px;pointer-events:none; }
+.auth-glow2 { position:absolute; width:350px;height:350px;border-radius:50%;background:radial-gradient(circle,rgba(57,255,20,.07),transparent 70%);bottom:-80px;left:-60px;pointer-events:none; }
+
+.auth-card {
+  background:var(--s2); border:1px solid var(--border);
+  border-radius:20px; padding:clamp(28px,5vw,44px);
+  width:100%; max-width:440px; position:relative; z-index:2;
+  box-shadow:0 0 60px rgba(0,0,0,.6), 0 0 0 1px rgba(139,47,201,.1);
+}
+
+/* LOGO */
+.auth-logo {
+  font-family:'Bebas Neue',sans-serif; font-size:32px; letter-spacing:5px;
+  color:var(--green); text-align:center; margin-bottom:4px;
+}
+.auth-sub {
+  font-family:'Space Mono',monospace; font-size:10px; letter-spacing:3px;
+  text-transform:uppercase; color:var(--muted); text-align:center; margin-bottom:28px;
+}
+
+/* TABS */
+.auth-tabs { display:flex; border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-bottom:24px; }
+.auth-tab {
+  flex:1; padding:10px; font-family:'Space Mono',monospace; font-size:11px;
+  letter-spacing:2px; text-transform:uppercase; color:var(--muted);
+  background:none; border:none; cursor:pointer; transition:all .2s;
+}
+.auth-tab.active { background:var(--green); color:#000; font-weight:700; }
+
+/* FORM */
+.form-group { margin-bottom:16px; }
+.form-label {
+  display:block; font-family:'Space Mono',monospace; font-size:9px;
+  letter-spacing:2.5px; text-transform:uppercase; color:var(--muted); margin-bottom:6px;
+}
+.form-input {
+  width:100%; background:var(--s3); border:1px solid var(--border);
+  border-radius:10px; padding:12px 14px; color:var(--text);
+  font-family:'DM Sans',sans-serif; font-size:14px; outline:none;
+  transition:border-color .2s, box-shadow .2s;
+}
+.form-input:focus { border-color:var(--violet); box-shadow:0 0 0 3px rgba(139,47,201,.12); }
+.form-input::placeholder { color:var(--muted); }
+
+/* PASSWORD STRENGTH */
+.pw-strength { display:flex; gap:4px; margin-top:6px; }
+.pw-bar { flex:1; height:3px; border-radius:2px; background:var(--border); transition:background .3s; }
+.pw-bar.weak   { background:var(--orange); }
+.pw-bar.medium { background:var(--yellow); }
+.pw-bar.strong { background:var(--green); }
+.pw-label { font-family:'Space Mono',monospace; font-size:9px; color:var(--muted); margin-top:4px; }
+
+/* GENRE SELECTOR */
+.genre-grid { display:flex; flex-wrap:wrap; gap:6px; }
+.genre-chip {
+  font-size:10px; font-family:'Space Mono',monospace; padding:5px 10px;
+  border-radius:16px; border:1px solid var(--border); color:var(--muted);
+  cursor:pointer; transition:all .18s; user-select:none;
+}
+.genre-chip:hover { border-color:var(--blight); color:var(--text); }
+.genre-chip.selected { background:var(--vd); border-color:var(--violet); color:var(--vl); }
+
+/* OR DIVIDER */
+.or-divider {
+  display:flex; align-items:center; gap:12px; margin:20px 0;
+}
+.or-divider::before, .or-divider::after { content:''; flex:1; height:1px; background:var(--border); }
+.or-divider span { font-family:'Space Mono',monospace; font-size:10px; color:var(--muted); }
+
+/* SOCIAL BTNS */
+.social-auth { display:flex; gap:8px; margin-bottom:8px; }
+.social-auth-btn {
+  flex:1; padding:10px; border:1px solid var(--border); border-radius:10px;
+  background:var(--s3); color:var(--text); font-size:12px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+  transition:border-color .2s; font-family:'DM Sans',sans-serif;
+}
+.social-auth-btn:hover { border-color:var(--blight); }
+
+/* SUBMIT */
+.submit-btn {
+  width:100%; padding:14px; border-radius:10px;
+  background:var(--green); color:#000; font-family:'Space Mono',monospace;
+  font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+  border:none; cursor:pointer; transition:background .2s; margin-top:4px;
+}
+.submit-btn:hover { background:#50ff30; }
+
+/* FOOTER LINK */
+.auth-footer-text {
+  text-align:center; font-size:12px; color:var(--muted);
+  margin-top:16px;
+}
+.auth-footer-text a { color:var(--green); text-decoration:none; }
+.auth-footer-text a:hover { text-decoration:underline; }
+
+/* SUCCESS STATE */
+.success-state {
+  display:none; flex-direction:column; align-items:center;
+  text-align:center; gap:16px; padding:20px 0;
+}
+.success-icon { font-size:56px; }
+.success-title { font-family:'Bebas Neue',sans-serif; font-size:32px; letter-spacing:3px; color:var(--green); }
+.success-sub { font-size:14px; color:var(--muted); line-height:1.6; }
+
+/* BACK LINK */
+.back-link {
+  position:absolute; top:20px; left:20px; z-index:10;
+  font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px;
+  text-transform:uppercase; color:var(--muted); text-decoration:none;
+  display:flex; align-items:center; gap:6px; transition:color .2s;
+}
+.back-link:hover { color:var(--green); }
+
+/* STEP INDICATOR */
+.steps { display:flex; gap:6px; justify-content:center; margin-bottom:24px; }
+.step-dot { width:8px; height:8px; border-radius:50%; background:var(--border); transition:all .3s; }
+.step-dot.active { background:var(--green); width:20px; border-radius:4px; }
+.step-dot.done { background:var(--green); }
+
+/* TERMS */
+.terms-check { display:flex; gap:10px; align-items:flex-start; }
+.terms-check input { margin-top:3px; accent-color:var(--violet); flex-shrink:0; }
+.terms-check label { font-size:12px; color:var(--muted); line-height:1.5; }
+.terms-check a { color:var(--violet); text-decoration:none; }
+</style>
+</head>
+<body>
+<div class="cur-dot"></div>
+<div class="cur-ring"></div>
+
+<a href="index.html" class="back-link">← volver al inicio</a>
+
+<div class="auth-page">
+  <div class="auth-bg"></div>
+  <div class="auth-glow1"></div>
+  <div class="auth-glow2"></div>
+
+  <div class="auth-card" id="auth-card">
+
+    <!-- LOGO -->
+    <div class="auth-logo">NOIZE</div>
+    <div class="auth-sub">◆ plataforma musical · buenos aires</div>
+
+    <!-- TABS -->
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="switchAuth('login')">ingresar</button>
+      <button class="auth-tab" id="tab-register" onclick="switchAuth('register')">unirse</button>
+    </div>
+
+    <!-- ── LOGIN FORM ── -->
+    <div id="login-form">
+      <div class="social-auth">
+        <button class="social-auth-btn">🎵 Spotify</button>
+        <button class="social-auth-btn">📸 Instagram</button>
+        <button class="social-auth-btn">✉️ Google</button>
+      </div>
+
+      <div class="or-divider"><span>o con email</span></div>
+
+      <div class="form-group">
+        <label class="form-label">email o usuario</label>
+        <input class="form-input" type="text" placeholder="@tuusuario o email@dominio.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">contraseña</label>
+        <input class="form-input" type="password" placeholder="••••••••" id="pw-login">
+        <div style="text-align:right;margin-top:6px;">
+          <a href="#" style="font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;text-decoration:none;">¿olvidaste tu contraseña?</a>
+        </div>
+      </div>
+      <button class="submit-btn" onclick="showSuccess()">ingresar →</button>
+      <div class="auth-footer-text">¿No tenés cuenta? <a href="#" onclick="switchAuth('register')">Creá una gratis</a></div>
+    </div>
+
+    <!-- ── REGISTER FORM (multi-step) ── -->
+    <div id="register-form" style="display:none;">
+      <div class="steps" id="step-dots">
+        <div class="step-dot active" id="dot-1"></div>
+        <div class="step-dot" id="dot-2"></div>
+        <div class="step-dot" id="dot-3"></div>
+      </div>
+
+      <!-- STEP 1: cuenta -->
+      <div id="step-1">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--text);margin-bottom:16px;">01 — TU CUENTA</div>
+
+        <div class="social-auth">
+          <button class="social-auth-btn">🎵 Spotify</button>
+          <button class="social-auth-btn">✉️ Google</button>
+        </div>
+        <div class="or-divider"><span>o con email</span></div>
+
+        <div class="form-group">
+          <label class="form-label">nombre de usuario</label>
+          <input class="form-input" type="text" placeholder="@tuusuario" id="reg-user">
+        </div>
+        <div class="form-group">
+          <label class="form-label">email</label>
+          <input class="form-input" type="email" placeholder="vos@email.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">contraseña</label>
+          <input class="form-input" type="password" placeholder="mínimo 8 caracteres" id="pw-reg" oninput="checkPw(this.value)">
+          <div class="pw-strength">
+            <div class="pw-bar" id="pw1"></div>
+            <div class="pw-bar" id="pw2"></div>
+            <div class="pw-bar" id="pw3"></div>
+            <div class="pw-bar" id="pw4"></div>
+          </div>
+          <div class="pw-label" id="pw-label">escribe una contraseña</div>
+        </div>
+        <button class="submit-btn" onclick="goStep(2)">siguiente →</button>
+        <div class="auth-footer-text">¿Ya tenés cuenta? <a href="#" onclick="switchAuth('login')">Ingresá</a></div>
+      </div>
+
+      <!-- STEP 2: gustos musicales -->
+      <div id="step-2" style="display:none;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--text);margin-bottom:6px;">02 — TUS GÉNEROS</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.5;">Elegí los géneros que más escuchás. Podés cambiarlos después.</div>
+
+        <div class="genre-grid" id="genre-grid">
+          <div class="genre-chip" onclick="toggleGenre(this)">indie</div>
+          <div class="genre-chip" onclick="toggleGenre(this)">rock alternativo</div>
+          <div class="genre-chip" onclick="toggleGenre(this)">pop</div>
+          <div class="genre-chip" onclick="toggleGenre(this)">jazz</div>
+          <div class="genre-chip" onclick="toggleGenre(this)">electrónica</div>
+          <div class="genre-chip" onclick="toggleGenre(this)">trap / urbano</div>
+          <div class="genre-chip" onclick="toggleGenre(this)">rock nacional</div>
+          <div class="genre-chip" onclick="toggleGenre(this)">folk</div>
+          <div class="genre-chip" onclick="toggleGenre(this)">neo soul</div>
+          <div class="genre-chip" onclick="toggleGenre(this)">clásica</div>
+          <div class="genre-chip" onclick="toggleGenre(this)">metal</div>
+          <div class="genre-chip" onclick="toggleGenre(this)">hip-hop</div>
+          <div class="genre-chip" onclick="toggleGenre(this)">bossa nova</div>
+          <div class="genre-chip" onclick="toggleGenre(this)">k-pop</div>
+          <div class="genre-chip" onclick="toggleGenre(this)">cumbia</div>
+        </div>
+
+        <div style="margin-top:16px;display:flex;gap:8px;">
+          <button class="btn" style="flex:1;" onclick="goStep(1)">← atrás</button>
+          <button class="submit-btn" style="flex:2;" onclick="goStep(3)">siguiente →</button>
+        </div>
+      </div>
+
+      <!-- STEP 3: términos -->
+      <div id="step-3" style="display:none;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--text);margin-bottom:16px;">03 — CASI LISTO</div>
+
+        <div class="form-group">
+          <label class="form-label">¿cómo querés que te llamen?</label>
+          <input class="form-input" type="text" placeholder="tu nombre o apodo">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">¿vinyl lover? (opcional)</label>
+          <div style="display:flex;gap:8px;">
+            <button class="social-auth-btn" id="vinyl-yes" onclick="toggleVinyl('yes')" style="flex:1;">💿 Sí, colecciono</button>
+            <button class="social-auth-btn" id="vinyl-no" onclick="toggleVinyl('no')" style="flex:1;">🎧 Solo streaming</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="terms-check">
+            <input type="checkbox" id="terms">
+            <label for="terms">Acepto los <a href="#">términos y condiciones</a> y la <a href="#">política de privacidad</a> de NOIZE.</label>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;">
+          <button class="btn" style="flex:1;" onclick="goStep(2)">← atrás</button>
+          <button class="submit-btn" style="flex:2;" onclick="showSuccess()">crear cuenta →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUCCESS STATE -->
+    <div class="success-state" id="success-state">
+      <div class="success-icon">🎵</div>
+      <div class="success-title">¡BIENVENIDA A NOIZE!</div>
+      <div class="success-sub">Tu cuenta está lista. Empezá escribiendo tu primera reseña o explorá los shows de Buenos Aires.</div>
+      <div style="display:flex;gap:8px;width:100%;">
+        <a href="resenas.html" class="btn btn-green" style="flex:1;justify-content:center;text-align:center;">escribir reseña →</a>
+        <a href="agenda.html" class="btn" style="flex:1;justify-content:center;text-align:center;">ver agenda</a>
+      </div>
+      <a href="perfil.html" style="font-size:12px;font-family:'Space Mono',monospace;color:var(--muted);margin-top:4px;">ver mi perfil →</a>
+    </div>
+
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+// No need for full initPage since no nav/ticker/footer on auth page
+initCursor && initCursor();
+document.querySelector('.cur-dot') && (() => {
+  const dot = document.querySelector('.cur-dot');
+  const ring = document.querySelector('.cur-ring');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;dot.style.left=mx+'px';dot.style.top=my+'px';});
+  (function a(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(a);})();
+})();
+
+function switchAuth(mode) {
+  const loginTab = document.getElementById('tab-login');
+  const regTab   = document.getElementById('tab-register');
+  const loginForm= document.getElementById('login-form');
+  const regForm  = document.getElementById('register-form');
+  if (mode === 'login') {
+    loginTab.classList.add('active'); regTab.classList.remove('active');
+    loginForm.style.display=''; regForm.style.display='none';
+  } else {
+    regTab.classList.add('active'); loginTab.classList.remove('active');
+    regForm.style.display=''; loginForm.style.display='none';
+  }
+}
+
+function goStep(n) {
+  [1,2,3].forEach(i => {
+    const s = document.getElementById('step-'+i);
+    const d = document.getElementById('dot-'+i);
+    if (s) s.style.display = i===n ? '' : 'none';
+    if (d) {
+      d.classList.toggle('active', i===n);
+      d.classList.toggle('done', i<n);
+    }
+  });
+}
+
+function toggleGenre(el) { el.classList.toggle('selected'); }
+
+function toggleVinyl(v) {
+  document.getElementById('vinyl-yes').style.borderColor = v==='yes' ? 'var(--green)' : 'var(--border)';
+  document.getElementById('vinyl-no').style.borderColor  = v==='no'  ? 'var(--violet)': 'var(--border)';
+}
+
+function checkPw(val) {
+  const bars = [1,2,3,4].map(i => document.getElementById('pw'+i));
+  const label = document.getElementById('pw-label');
+  const len = val.length;
+  bars.forEach(b => { b.className='pw-bar'; });
+  if (len === 0) { label.textContent='escribe una contraseña'; return; }
+  if (len < 6)  { bars[0].classList.add('weak'); label.textContent='muy corta'; }
+  else if (len < 8) { bars[0].classList.add('weak'); bars[1].classList.add('weak'); label.textContent='débil'; }
+  else if (len < 12) { bars[0].classList.add('medium'); bars[1].classList.add('medium'); bars[2].classList.add('medium'); label.textContent='buena'; }
+  else { bars.forEach(b => b.classList.add('strong')); label.textContent='excelente ✓'; }
+}
+
+function showSuccess() {
+  ['login-form','register-form'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+  document.getElementById('auth-card').querySelector('.auth-tabs').style.display = 'none';
+  document.getElementById('auth-card').querySelector('.auth-logo').style.marginBottom = '4px';
+  const s = document.getElementById('success-state');
+  s.style.display = 'flex';
+}
+</script>
+</body>
+</html>

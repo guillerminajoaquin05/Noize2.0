@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="vynil.png" type="image/png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOIZE — Reseñas Musicales</title>
+<link rel="stylesheet" href="shared.css">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+.page-hero { padding:56px clamp(16px,4vw,48px) 40px; background:var(--s1); border-bottom:1px solid var(--border); }
+
+/* REVIEWS LAYOUT */
+.reviews-layout { display:grid; grid-template-columns:1fr 260px; gap:24px; align-items:start; }
+
+/* FEATURED */
+.featured-review {
+  background:linear-gradient(135deg,var(--vd) 0%,#1a0d2e 100%);
+  border:1px solid var(--violet); border-radius:var(--r); padding:28px; margin-bottom:24px;
+}
+.fr-quote { font-size:22px; font-style:italic; line-height:1.5; color:var(--text); margin-bottom:20px; }
+.fr-meta { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+
+/* REVIEW CARD */
+.review-card {
+  background:var(--s2); border:1px solid var(--border); border-radius:var(--r);
+  padding:20px; margin-bottom:14px; transition:border-color .2s, transform .2s;
+}
+.review-card:hover { border-color:var(--blight); transform:translateY(-1px); }
+.rc-header { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.rc-name  { font-weight:600; font-size:13px; }
+.rc-handle{ font-size:10px; color:var(--muted); font-family:'Space Mono',monospace; }
+.rc-badge { margin-left:auto; }
+.rc-subject{ font-size:11px; font-family:'Space Mono',monospace; color:var(--vl); font-style:italic; margin-bottom:8px; }
+.rc-body  { font-size:13px; line-height:1.7; color:rgba(240,237,232,.78); margin-bottom:12px; }
+.rc-footer{ display:flex; align-items:center; justify-content:space-between; }
+.rc-likes { font-size:10px; color:var(--muted); font-family:'Space Mono',monospace; }
+
+/* WRITE BOX */
+.write-box {
+  background:var(--s2); border:1.5px dashed var(--blight); border-radius:var(--r);
+  padding:24px; text-align:center; margin-bottom:24px;
+}
+.write-box h3 { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:2px; color:var(--vl); margin-bottom:8px; }
+.write-box p { font-size:12px; color:var(--muted); margin-bottom:16px; line-height:1.6; }
+
+/* SIDEBAR */
+.sidebar { position:sticky; top:78px; }
+.sidebar-card { background:var(--s2); border:1px solid var(--border); border-radius:var(--r); padding:16px; margin-bottom:12px; }
+.sidebar-title { font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:2px; color:var(--green); margin-bottom:12px; }
+.top-reviewer { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--border); }
+.top-reviewer:last-child { border-bottom:none; }
+.tr-info { flex:1; }
+.tr-name { font-size:13px; font-weight:600; }
+.tr-count { font-size:10px; color:var(--muted); font-family:'Space Mono',monospace; }
+.tr-rank { font-family:'Bebas Neue',sans-serif; font-size:20px; color:var(--green); }
+
+/* MODAL */
+.modal-overlay {
+  display:none; position:fixed; inset:0; background:rgba(0,0,0,.85);
+  backdrop-filter:blur(8px); z-index:500; align-items:center; justify-content:center; padding:16px;
+}
+.modal-overlay.open { display:flex; }
+.modal {
+  background:var(--s2); border:1px solid var(--blight); border-radius:var(--r);
+  padding:32px; max-width:560px; width:100%; position:relative;
+  animation:fadeUp .3s ease;
+}
+.modal-close {
+  position:absolute; top:14px; right:16px; background:none; border:none;
+  color:var(--muted); font-size:20px; cursor:pointer; padding:4px 8px;
+  border-radius:6px; transition:color .2s;
+}
+.modal-close:hover { color:var(--text); }
+.modal h3 { font-family:'Bebas Neue',sans-serif; font-size:28px; letter-spacing:2px; color:var(--green); margin-bottom:20px; }
+.form-group { margin-bottom:16px; }
+.form-group label { display:block; font-size:10px; font-family:'Space Mono',monospace; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+.form-group input, .form-group select, .form-group textarea {
+  width:100%; background:var(--s3); border:1px solid var(--border); border-radius:8px;
+  padding:10px 14px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:14px;
+  outline:none; transition:border-color .2s;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color:var(--violet); }
+.form-group textarea { resize:vertical; min-height:100px; }
+.form-group select option { background:var(--s3); }
+.star-select { display:flex; gap:6px; margin-top:4px; }
+.star-select span { font-size:24px; cursor:pointer; opacity:.4; transition:opacity .2s; }
+.star-select span.on { opacity:1; }
+
+.hidden { display:none; }
+
+@media(max-width:900px) {
+  .reviews-layout { grid-template-columns:1fr; }
+  .sidebar { position:static; }
+}
+</style>
+</head>
+<body>
+<div class="cur-dot"></div>
+<div class="cur-ring"></div>
+<nav style="display: flex; gap: 24px; padding: 16px clamp(16px, 4vw, 48px); border-bottom: 1px solid var(--border); background: var(--s1); align-items: center; justify-content: flex-start; width: 100%;">
+  
+  <a href="index.html" style="color: var(--green); font-family: 'Bebas Neue', sans-serif; font-size: clamp(24px, 3vw, 32px); text-decoration: none; letter-spacing: 4px; line-height: 1;">
+    NOIZE
+  </a>
+  
+  <div style="display: flex; gap: clamp(12px, 2vw, 24px); align-items: center; font-family: 'Space Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;">
+    <a href="index.html" style="color: var(--text); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--text)'">Inicio</a>
+    <a href="resenas.html" style="color: var(--text); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--text)'">Reseñas</a>
+    <a href="agenda.html" style="color: var(--text); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--text)'">Agenda</a>
+    <a href="mapa.html" style="color: var(--text); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--text)'">Mapa</a>
+    <a href="vinilos.html" style="color: var(--text); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--text)'">Vinilos</a>
+    <a href="perfil.html" style="color: var(--text); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--text)'">Perfil</a>
+  </div>
+  
+  <a href="login.html" style="margin-left: auto; color: var(--green); font-family: 'Space Mono', monospace; font-size: 11px; text-transform: uppercase; text-decoration: none; letter-spacing: 1px; border: 1px solid var(--green); padding: 6px 14px; border-radius: 8px; transition: background 0.2s, color 0.2s;" onmouseover="this.style.background='var(--green)'; this.style.color='#000'" onmouseout="this.style.background='none'; this.style.color='var(--green)'">
+    Ingresar
+  </a>
+
+</nav>
+<div id="ticker-root"></div>
+
+<div class="page-hero">
+  <div style="max-width:680px;">
+    <div class="eyebrow">◆ comunidad · opiniones reales</div>
+    <h1 class="h1">RESEÑAS</h1>
+    <p style="color:var(--muted);font-size:15px;line-height:1.7;margin-bottom:20px;">Álbumes, artistas, conciertos y vinilos. La crítica musical de la comunidad porteña.</p>
+    <button class="btn btn-green" onclick="openModal()">✍️ escribir reseña</button>
+  </div>
+</div>
+
+<section class="section">
+  <!-- FILTERS -->
+  <div class="filter-bar" id="filter-bar">
+    <button class="btn-filtro active" onclick="aplicarFiltro('todo', this)">todo</button>
+    <button class="btn-filtro" onclick="aplicarFiltro('album', this)">💿 álbumes</button>
+    <button class="btn-filtro" onclick="aplicarFiltro('artista', this)">🎤 artistas</button>
+    <button class="btn-filtro" onclick="aplicarFiltro('conciertos', this)">🎸 conciertos</button>
+    <button class="btn-filtro" onclick="aplicarFiltro('vinilo', this)">🎵 vinilos</button>
+    <button class="btn-filtro" onclick="aplicarFiltro('mejor-valorados', this)">⭐ mejor valorados</button>
+  </div>
+
+  <script>
+    function aplicarFiltro(filtroElegido, botonClickeado) {
+      // 1. Cambiamos el color al botón clickeado
+      const botones = document.querySelectorAll('.btn-filtro');
+      botones.forEach(b => b.classList.remove('active'));
+      botonClickeado.classList.add('active');
+
+      // 2. Filtramos las reseñas chiquitas
+      const tarjetas = document.querySelectorAll('.review-card');
+      tarjetas.forEach(tarjeta => {
+        const tipo = tarjeta.getAttribute('data-type');
+        const puntaje = tarjeta.getAttribute('data-rating');
+        
+        if (filtroElegido === 'todo') {
+          tarjeta.style.display = 'block';
+        } else if (filtroElegido === 'mejor-valorados') {
+          tarjeta.style.display = (puntaje === '5') ? 'block' : 'none';
+        } else {
+          tarjeta.style.display = (tipo === filtroElegido) ? 'block' : 'none';
+        }
+      });
+
+      // 3. Filtramos la reseña destacada gigante de Charli XCX
+      const destacada = document.querySelector('.featured-review');
+      if (destacada) {
+        const tipoDestacada = destacada.getAttribute('data-type');
+        if (filtroElegido === 'todo' || filtroElegido === 'mejor-valorados') {
+          destacada.style.display = 'block';
+        } else {
+          destacada.style.display = (tipoDestacada === filtroElegido) ? 'block' : 'none';
+        }
+      }
+    }
+  </script>
+
+  <div class="reviews-layout">
+    <div>
+      <!-- FEATURED -->
+      <div class="featured-review" data-type="album">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+          <span style="font-size:10px;font-family:'Space Mono',monospace;letter-spacing:2px;color:var(--vl);">✦ RESEÑA DESTACADA</span>
+        </div>
+        <div class="fr-quote">"BRAT es el álbum del verano, pero también del invierno, de la madrugada y de cuando estás sola en el colectivo. Charli XCX redefinió lo que puede ser el pop en 2024."</div>
+        <div class="fr-meta">
+          <div class="avatar av-v">MX</div>
+          <div>
+            <div style="font-weight:600;font-size:14px;"><a href="perfil.html" style="color:inherit;text-decoration:none;">Melodía X</a></div>
+            <div style="font-size:10px;color:var(--muted);font-family:'Space Mono',monospace;">@melodiax · reviewer destacada ✦</div>
+          </div>
+          <div class="stars" style="margin-left:auto;">★★★★★</div>
+          <span class="tag tag-album">álbum</span>
+        </div>
+        <div style="font-size:11px;font-family:'Space Mono',monospace;color:var(--vl);margin-top:12px;">◦ BRAT — Charli XCX (2024)</div>
+      </div>
+
+      <!-- REVIEW CARDS -->
+      <div id="reviews-container">
+
+        <div class="review-card" data-type="conciertos" data-rating="5">
+          <div class="rc-header">
+            <div class="avatar av-o">CR</div>
+            <div><div class="rc-name">Caro R.</div><div class="rc-handle">@caro.rec</div></div>
+            <span class="tag tag-concierto rc-badge">concierto</span>
+          </div>
+          <div class="rc-subject">◦ Pulp — Movistar Arena, Buenos Aires (2023)</div>
+          <div class="rc-body">"Jarvis Cocker tiene 60 años y sigue siendo el performer más magnético que vi en mi vida. Hicieron todo el setlist de Different Class y el estadio enloqueció. Si vuelven, comprá entradas sin pensarlo."</div>
+          <div class="rc-footer">
+            <div class="stars">★★★★★</div>
+            <div class="rc-likes">♡ 312 · 44 comentarios</div>
+          </div>
+        </div>
+
+        <div class="review-card" data-type="album" data-rating="5">
+          <div class="rc-header">
+            <div class="avatar av-g">LP</div>
+            <div><div class="rc-name">Lautaro P.</div><div class="rc-handle">@lauponce</div></div>
+            <span class="tag tag-album rc-badge">álbum</span>
+          </div>
+          <div class="rc-subject">◦ The Great Impersonator — Halsey (2024)</div>
+          <div class="rc-body">"Un disco conceptual que nadie esperaba. Halsey recorre géneros como si fueran disfraces — country, glam rock, folk — y en cada track convence. El cierre con 'Lonely is the muse' es devastador."</div>
+          <div class="rc-footer">
+            <div class="stars">★★★★☆</div>
+            <div class="rc-likes">♡ 187 · 23 comentarios</div>
+          </div>
+        </div>
+
+        <div class="review-card" data-type="artista" data-rating="5">
+          <div class="rc-header">
+            <div class="avatar av-v">SV</div>
+            <div><div class="rc-name">Sol V.</div><div class="rc-handle">@solvibes</div></div>
+            <span class="tag tag-artista rc-badge">artista</span>
+          </div>
+          <div class="rc-subject">◦ Khruangbin — discografía completa</div>
+          <div class="rc-body">"Imposible elegir un disco favorito. Si no los conocés, empezá por Con Todo El Mundo y dejate llevar. Hacen que la música suene como un viaje largo con la ventanilla baja."</div>
+          <div class="rc-footer">
+            <div class="stars">★★★★★</div>
+            <div class="rc-likes">♡ 254 · 31 comentarios</div>
+          </div>
+        </div>
+
+        <div class="review-card" data-type="vinilo" data-rating="5">
+          <div class="rc-header">
+            <div class="avatar av-y">LS</div>
+            <div><div class="rc-name">Lauti S.</div><div class="rc-handle">@lautisonic</div></div>
+            <span class="tag tag-vinilo rc-badge">vinilo</span>
+          </div>
+          <div class="rc-subject">◦ Kind of Blue — Miles Davis (Columbia, primera prensa 1959)</div>
+          <div class="rc-body">"Lo encontré en Eureka Records en Palermo, en estado VG+. Pagué $18.000 y fue la mejor inversión de mi vida. En vinilo original, el sonido tiene una profundidad que ningún streaming puede replicar. Si lo ven, no lo duden."</div>
+          <div class="rc-footer">
+            <div class="stars">★★★★★</div>
+            <div class="rc-likes">♡ 198 · 27 comentarios</div>
+          </div>
+        </div>
+
+        <div class="review-card" data-type="album" data-rating="5">
+          <div class="rc-header">
+            <div class="avatar av-o">MF</div>
+            <div><div class="rc-name">Manu F.</div><div class="rc-handle">@manuf</div></div>
+            <span class="tag tag-album rc-badge">álbum</span>
+          </div>
+          <div class="rc-subject">◦ Short n' Sweet — Sabrina Carpenter (2024)</div>
+          <div class="rc-body">"El pop mainstream no tenía un disco así desde hace años. Cada track es un hit, la producción es impecable y la personalidad de Carpenter brilla en cada línea. Es difícil elegir el mejor track."</div>
+          <div class="rc-footer">
+            <div class="stars">★★★★☆</div>
+            <div class="rc-likes">♡ 241 · 38 comentarios</div>
+          </div>
+        </div>
+
+        <div class="review-card" data-type="conciertos" data-rating="5">
+          <div class="rc-header">
+            <div class="avatar av-g">JR</div>
+            <div><div class="rc-name">Juan Rock</div><div class="rc-handle">@jrock99</div></div>
+            <span class="tag tag-concierto rc-badge">concierto</span>
+          </div>
+          <div class="rc-subject">◦ Nicki Nicole — Movistar Arena, BsAs (mayo 2026)</div>
+          <div class="rc-body">"La vi crecer desde sus primeros shows en Córdoba y verla llenar el Movistar fue emocionante. El show está muy producido, la banda en vivo le da otra energía. Lleguen temprano para el apertura."</div>
+          <div class="rc-footer">
+            <div class="stars">★★★★☆</div>
+            <div class="rc-likes">♡ 156 · 19 comentarios</div>
+          </div>
+        </div>
+
+        <div class="review-card" data-type="vinilo" data-rating="5">
+          <div class="rc-header">
+            <div class="avatar av-v">VP</div>
+            <div><div class="rc-name">Vale P.</div><div class="rc-handle">@valepop</div></div>
+            <span class="tag tag-vinilo rc-badge">vinilo</span>
+          </div>
+          <div class="rc-subject">◦ Rumours — Fleetwood Mac (reedición 2024)</div>
+          <div class="rc-body">"Compré la reedición de 180g en Zuvela Discos. El prensado es limpio, no hay ruido de fondo, y la masterización hace que 'The Chain' te parta el alma. Para quien está empezando su colección, este es EL disco."</div>
+          <div class="rc-footer">
+            <div class="stars">★★★★★</div>
+            <div class="rc-likes">♡ 142 · 22 comentarios</div>
+          </div>
+        </div>
+
+      </div><!-- end reviews-container -->
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="write-box">
+        <h3>✍️ TU RESEÑA</h3>
+        <p>¿Fuiste a un show, compraste un disco o encontraste un vinilo? Compartilo con la comunidad.</p>
+        <button class="btn btn-green" onclick="openModal()" style="width:100%;justify-content:center;">escribir ahora →</button>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="sidebar-title">◈ TOP REVIEWERS</div>
+        <div class="top-reviewer">
+          <div class="tr-rank">01</div>
+          <div class="avatar av-v">MX</div>
+          <div class="tr-info"><div class="tr-name"><a href="perfil.html" style="color:inherit;text-decoration:none;">Melodía X</a></div><div class="tr-count">48 reseñas · ♡ 4.2K</div></div>
+        </div>
+        <div class="top-reviewer">
+          <div class="tr-rank">02</div>
+          <div class="avatar av-g">SV</div>
+          <div class="tr-info"><div class="tr-name">Sol V.</div><div class="tr-count">36 reseñas · ♡ 3.1K</div></div>
+        </div>
+        <div class="top-reviewer">
+          <div class="tr-rank">03</div>
+          <div class="avatar av-o">CR</div>
+          <div class="tr-info"><div class="tr-name">Caro R.</div><div class="tr-count">29 reseñas · ♡ 2.8K</div></div>
+        </div>
+        <div class="top-reviewer">
+          <div class="tr-rank">04</div>
+          <div class="avatar av-y">LS</div>
+          <div class="tr-info"><div class="tr-name">Lauti S.</div><div class="tr-count">24 reseñas · ♡ 2.1K</div></div>
+        </div>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="sidebar-title">◈ MÁS RESEÑADOS</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="font-size:12px;color:var(--text);">1. BRAT — Charli XCX <span style="color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;">142 reseñas</span></div>
+          <div style="font-size:12px;color:var(--text);">2. Short n' Sweet — S. Carpenter <span style="color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;">98 reseñas</span></div>
+          <div style="font-size:12px;color:var(--text);">3. Khruangbin — discografía <span style="color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;">76 reseñas</span></div>
+          <div style="font-size:12px;color:var(--text);">4. Pulp en BsAs 2023 <span style="color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;">54 reseñas</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WRITE MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h3>ESCRIBÍ TU RESEÑA</h3>
+    <div class="form-group">
+      <label>tipo de reseña</label>
+      <select id="review-type">
+        <option value="">seleccioná...</option>
+        <option>Álbum</option>
+        <option>Artista</option>
+        <option>Concierto</option>
+        <option>Vinilo</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>nombre del álbum / artista / evento</label>
+      <input type="text" placeholder="ej: BRAT — Charli XCX">
+    </div>
+    <div class="form-group">
+      <label>calificación</label>
+      <div class="star-select" id="stars">
+        <span onclick="setStar(1)">★</span>
+        <span onclick="setStar(2)">★</span>
+        <span onclick="setStar(3)">★</span>
+        <span onclick="setStar(4)">★</span>
+        <span onclick="setStar(5)">★</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>tu reseña</label>
+      <textarea placeholder="Contá tu experiencia, lo que te generó, por qué lo recomendarías..."></textarea>
+    </div>
+    <button class="btn btn-green" style="width:100%;justify-content:center;padding:12px;" onclick="closeModal()">publicar reseña →</button>
+  </div>
+</div>
+
+<div id="footer-root"></div>
+<script src="shared.js"></script>
+<script>
+  initPage('resenas.html');
+
+  // MODAL DE RESEÑAS
+  function openModal()  { document.getElementById('modal').classList.add('open'); document.body.style.overflow='hidden'; }
+  function closeModal() { document.getElementById('modal').classList.remove('open'); document.body.style.overflow=''; }
+  
+  // Arreglamos también el clic del modal por las dudas
+  document.addEventListener('click', e => { 
+    if(e.target.id === 'modal') closeModal(); 
+  });
+
+  // ESTRELLITAS
+  function setStar(n) {
+    document.querySelectorAll('#stars span').forEach((s,i) => s.classList.toggle('on', i < n));
+  }
+
+  // FILTROS (MÉTODO INVENCIBLE)
+  document.addEventListener('click', function(e) {
+    // Si el usuario hace clic exactamente en un elemento que tenga la clase 'btn-filtro'
+    if (e.target.classList.contains('btn-filtro')) {
+      
+      const botonClickeado = e.target;
+      const todosLosBotones = document.querySelectorAll('.btn-filtro');
+      const tarjetas = document.querySelectorAll('.review-card');
+      const destacada = document.querySelector('.featured-review');
+
+      // 1. Cambiamos el color
+      todosLosBotones.forEach(b => b.classList.remove('active')); 
+      botonClickeado.classList.add('active');
+
+      // 2. Leemos qué botón tocaste
+      const filtro = botonClickeado.getAttribute('data-filter');
+
+      // 3. Filtramos las reseñas comunes
+      tarjetas.forEach(tarjeta => {
+        const tipo = tarjeta.getAttribute('data-type');
+        const puntaje = tarjeta.getAttribute('data-rating');
+
+        if (filtro === 'todo') {
+          tarjeta.style.display = 'block';
+        } else if (filtro === 'mejor-valorados') {
+          tarjeta.style.display = (puntaje === '5') ? 'block' : 'none';
+        } else {
+          tarjeta.style.display = (tipo === filtro) ? 'block' : 'none';
+        }
+      });
+
+      // 4. Filtramos la reseña destacada gigante
+      if (destacada) {
+        const tipoDestacada = destacada.getAttribute('data-type');
+        if (filtro === 'todo' || filtro === 'mejor-valorados') {
+          destacada.style.display = 'block';
+        } else {
+          destacada.style.display = (tipoDestacada === filtro) ? 'block' : 'none';
+        }
+      }
+    }
+  });
+</script>
+</body>
+</html>
+

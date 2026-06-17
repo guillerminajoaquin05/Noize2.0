@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="vynil.png" type="image/png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOIZE — Perfil · @Carla06</title>
+<link rel="stylesheet" href="shared.css">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── PROFILE HERO ── */
+.profile-hero {
+  background:var(--s1); border-bottom:1px solid var(--border);
+  padding:40px clamp(16px,4vw,48px) 0;
+}
+.profile-inner {
+  display:grid; grid-template-columns:auto 1fr auto; gap:28px; align-items:flex-start;
+  padding-bottom:28px; border-bottom:1px solid var(--border); margin-bottom:0;
+}
+.profile-avatar-wrap { position:relative; flex-shrink:0; }
+.profile-avatar {
+  width:100px; height:100px; border-radius:50%;
+  background:linear-gradient(135deg,var(--vd),var(--violet));
+  border:3px solid var(--violet);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Bebas Neue',sans-serif; font-size:38px; color:var(--vl);
+  letter-spacing:2px;
+}
+.online-dot {
+  width:18px; height:18px; background:var(--green); border-radius:50%;
+  border:3px solid var(--s1); position:absolute; bottom:4px; right:4px;
+}
+.profile-info { flex:1; }
+.profile-name { font-family:'Bebas Neue',sans-serif; font-size:clamp(28px,4vw,40px); letter-spacing:3px; line-height:1; margin-bottom:4px; }
+.profile-handle {
+  font-family:'Space Mono',monospace; font-size:12px; color:var(--muted); margin-bottom:12px;
+}
+.profile-handle span { color:var(--green); }
+.profile-bio { font-size:14px; color:rgba(240,237,232,.7); line-height:1.65; max-width:480px; margin-bottom:14px; }
+.profile-genres { display:flex; gap:6px; flex-wrap:wrap; }
+
+/* STATS */
+.profile-stats {
+  display:flex; gap:clamp(16px,3vw,32px); padding:0 0 20px;
+  border-bottom: 1px solid var(--border);
+}
+.stat-block { text-align:center; }
+.stat-n { font-family:'Bebas Neue',sans-serif; font-size:28px; color:var(--green); line-height:1; display:block; }
+.stat-l { font-size:10px; font-family:'Space Mono',monospace; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; }
+
+/* PROFILE ACTIONS */
+.profile-actions { display:flex; gap:8px; align-items:flex-start; flex-shrink:0; }
+
+/* TABS */
+.profile-tabs { display:flex; border-bottom:1px solid var(--border); background:var(--s1); overflow-x:auto; scrollbar-width:none; }
+.profile-tabs::-webkit-scrollbar { display:none; }
+.ptab {
+  font-size:10px; font-family:'Space Mono',monospace; letter-spacing:2px; text-transform:uppercase;
+  color:var(--muted); padding:14px clamp(14px,2.5vw,22px);
+  border-bottom:2px solid transparent; cursor:pointer; background:none; border-top:none; border-left:none; border-right:none;
+  white-space:nowrap; transition:color .2s, border-color .2s;
+}
+.ptab:hover { color:var(--text); }
+.ptab.active { color:var(--green); border-bottom-color:var(--green); }
+
+/* PROFILE LAYOUT */
+.profile-layout { display:grid; grid-template-columns:1fr 300px; gap:24px; align-items:start; padding-top:28px; }
+.profile-sidebar { position:sticky; top:78px; }
+
+/* REVIEW CARD (profile style) */
+.prc { background:var(--s2); border:1px solid var(--border); border-radius:var(--r); padding:18px; margin-bottom:12px; transition:border-color .2s; }
+.prc:hover { border-color:var(--blight); }
+.prc-header { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+.prc-subject { font-size:11px; font-family:'Space Mono',monospace; color:var(--vl); font-style:italic; margin-bottom:8px; }
+.prc-text { font-size:13px; line-height:1.7; color:rgba(240,237,232,.76); margin-bottom:12px; }
+.prc-footer { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px; }
+.prc-date { font-size:10px; color:var(--muted); font-family:'Space Mono',monospace; }
+
+/* SIDEBAR CARDS */
+.sc { background:var(--s2); border:1px solid var(--border); border-radius:var(--r); padding:16px; margin-bottom:12px; }
+.sc-title { font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:2px; color:var(--green); margin-bottom:12px; }
+
+/* LISTENING NOW */
+.listening-now {
+  background:linear-gradient(135deg,var(--gd),#0a2200);
+  border:1px solid var(--green); border-radius:var(--r); padding:16px; margin-bottom:12px;
+}
+.ln-label { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:3px; text-transform:uppercase; color:var(--green); margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+.ln-dot { width:6px; height:6px; border-radius:50%; background:var(--green); animation:pulse 1.5s ease infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+.ln-track { font-weight:600; font-size:14px; margin-bottom:2px; }
+.ln-artist { font-size:12px; color:var(--muted); font-family:'Space Mono',monospace; }
+.ln-bar { height:3px; background:var(--border); border-radius:2px; margin-top:10px; overflow:hidden; }
+.ln-fill { height:100%; width:42%; background:var(--green); border-radius:2px; }
+
+/* TOP ALBUMS grid */
+.top-albums { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+.album-item { background:var(--s3); border-radius:8px; aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; cursor:pointer; transition:background .2s; }
+.album-item:hover { background:var(--blight); }
+.album-emoji { font-size:22px; }
+.album-name { font-size:8px; font-family:'Space Mono',monospace; color:var(--muted); text-align:center; padding:0 4px; }
+
+/* ACTIVITY */
+.activity-item { display:flex; gap:10px; padding:10px 0; border-bottom:1px solid var(--border); }
+.activity-item:last-child { border-bottom:none; }
+.ac-icon { width:32px; height:32px; border-radius:8px; background:var(--s3); display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+.ac-text { font-size:12px; color:rgba(240,237,232,.75); line-height:1.5; flex:1; }
+.ac-text strong { color:var(--text); font-weight:600; }
+.ac-time { font-size:10px; color:var(--muted); font-family:'Space Mono',monospace; margin-top:3px; }
+
+/* LISTAS TAB */
+.lista-card { background:var(--s2); border:1px solid var(--border); border-radius:var(--r); padding:16px; margin-bottom:10px; }
+.lista-name { font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:1px; margin-bottom:4px; }
+.lista-meta { font-size:11px; color:var(--muted); font-family:'Space Mono',monospace; margin-bottom:10px; }
+.lista-tracks { display:flex; flex-direction:column; gap:4px; }
+.lista-track { font-size:12px; color:rgba(240,237,232,.7); display:flex; gap:8px; }
+.lista-track-num { color:var(--muted); font-family:'Space Mono',monospace; font-size:11px; min-width:18px; }
+
+/* HIDDEN */
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+
+@media(max-width:900px) {
+  .profile-inner { grid-template-columns:auto 1fr; }
+  .profile-actions { grid-column:1/-1; }
+  .profile-layout { grid-template-columns:1fr; }
+  .profile-sidebar { position:static; }
+}
+@media(max-width:560px) {
+  .profile-inner { grid-template-columns:1fr; text-align:center; }
+  .profile-avatar-wrap { margin:0 auto; }
+  .profile-bio { margin:0 auto 14px; }
+  .profile-genres { justify-content:center; }
+  .profile-actions { justify-content:center; }
+  .profile-stats { justify-content:center; }
+}
+</style>
+</head>
+<body>
+<div class="cur-dot"></div>
+<div class="cur-ring"></div>
+<nav style="display: flex; gap: 24px; padding: 16px clamp(16px, 4vw, 48px); border-bottom: 1px solid var(--border); background: var(--s1); align-items: center; justify-content: flex-start; width: 100%;">
+  
+  <a href="index.html" style="color: var(--green); font-family: 'Bebas Neue', sans-serif; font-size: clamp(24px, 3vw, 32px); text-decoration: none; letter-spacing: 4px; line-height: 1;">
+    NOIZE
+  </a>
+  
+  <div style="display: flex; gap: clamp(12px, 2vw, 24px); align-items: center; font-family: 'Space Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;">
+    <a href="index.html" style="color: var(--text); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--text)'">Inicio</a>
+    <a href="resenas.html" style="color: var(--text); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--text)'">Reseñas</a>
+    <a href="agenda.html" style="color: var(--text); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--text)'">Agenda</a>
+    <a href="mapa.html" style="color: var(--text); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--text)'">Mapa</a>
+    <a href="vinilos.html" style="color: var(--text); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--text)'">Vinilos</a>
+    <a href="perfil.html" style="color: var(--text); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--text)'">Perfil</a>
+  </div>
+  
+  <a href="login.html" style="margin-left: auto; color: var(--green); font-family: 'Space Mono', monospace; font-size: 11px; text-transform: uppercase; text-decoration: none; letter-spacing: 1px; border: 1px solid var(--green); padding: 6px 14px; border-radius: 8px; transition: background 0.2s, color 0.2s;" onmouseover="this.style.background='var(--green)'; this.style.color='#000'" onmouseout="this.style.background='none'; this.style.color='var(--green)'">
+    Ingresar
+  </a>
+
+</nav>
+<div id="ticker-root"></div>
+
+<!-- PROFILE HERO -->
+<div class="profile-hero">
+  <div class="profile-inner">
+    <!-- AVATAR -->
+    <div class="profile-avatar-wrap">
+      <div class="profile-avatar">CR</div>
+      <div class="online-dot"></div>
+    </div>
+
+    <!-- INFO -->
+    <div class="profile-info">
+      <div class="profile-name">Carla Rivera</div>
+      <div class="profile-handle">@Carla06 <span>✦ reviewer destacada</span></div>
+      <p class="profile-bio">Escribo sobre lo que escucho. Fan de Charli XCX, Pulp y todo lo que suene raro. Coleccionista de vinilos en proceso. Buenos Aires 🇦🇷</p>
+      <div class="profile-genres">
+        <span class="pill g" style="font-size:10px;padding:4px 10px;">indie pop</span>
+        <span class="pill v" style="font-size:10px;padding:4px 10px;">electrónica</span>
+        <span class="pill o" style="font-size:10px;padding:4px 10px;">rock alternativo</span>
+        <span class="pill" style="font-size:10px;padding:4px 10px;">jazz</span>
+        <span class="pill" style="font-size:10px;padding:4px 10px;">neo soul</span>
+      </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="profile-actions">
+      <button class="btn btn-green">+ seguir</button>
+      <button class="btn btn-outline" onclick="abrirChat()">mensaje</button>
+    </div>
+  </div>
+
+  <!-- STATS ROW -->
+  <div class="profile-stats" style="margin-top:20px;">
+    <div class="stat-block"><span class="stat-n">48</span><span class="stat-l">reseñas</span></div>
+    <div class="stat-block"><span class="stat-n">312</span><span class="stat-l">seguidores</span></div>
+    <div class="stat-block"><span class="stat-n">198</span><span class="stat-l">siguiendo</span></div>
+    <div class="stat-block"><span class="stat-n" style="color:var(--orange);">4.2K</span><span class="stat-l">♡ recibidos</span></div>
+    <div class="stat-block"><span class="stat-n" style="color:var(--vl);">7</span><span class="stat-l">listas</span></div>
+  </div>
+
+  <!-- TABS -->
+  <div class="profile-tabs">
+    <button class="ptab active" onclick="switchTab('resenas',this)">reseñas</button>
+    <button class="ptab" onclick="switchTab('listas',this)">listas</button>
+    <button class="ptab" onclick="switchTab('guardados',this)">guardados</button>
+    <button class="ptab" onclick="switchTab('actividad',this)">actividad</button>
+  </div>
+</div>
+
+<!-- PROFILE BODY -->
+<section class="section" style="border-top:none; padding-top:0;">
+  <div class="profile-layout">
+
+    <!-- MAIN CONTENT -->
+    <div>
+
+      <!-- TAB: RESEÑAS -->
+      <div class="tab-content active" id="tab-resenas">
+
+        <div class="filter-bar" style="margin-bottom:20px;">
+          <button class="pill active" onclick="filterPrc(this,'all')">todas</button>
+          <button class="pill" onclick="filterPrc(this,'album')">álbumes</button>
+          <button class="pill" onclick="filterPrc(this,'concierto')">conciertos</button>
+          <button class="pill" onclick="filterPrc(this,'vinilo')">vinilos</button>
+        </div>
+
+        <div class="prc" data-type="album">
+          <div class="prc-header">
+            <span class="tag tag-album">álbum</span>
+            <span style="font-size:10px;color:var(--muted);font-family:'Space Mono',monospace;margin-left:auto;">hace 2 días</span>
+          </div>
+          <div class="prc-subject">◦ BRAT — Charli XCX (2024)</div>
+          <div class="prc-text">"BRAT es el álbum del verano, pero también del invierno, de la madrugada y de cuando estás sola en el colectivo. Charli XCX redefinió lo que puede ser el pop en 2024. Cada track es un estado emocional distinto y todos son perfectos."</div>
+          <div class="prc-footer">
+            <div class="stars">★★★★★</div>
+            <div style="display:flex;gap:12px;align-items:center;">
+              <span class="rc-likes">♡ 312</span>
+              <span class="rc-likes">💬 44</span>
+              <span class="prc-date">12 jun 2026</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="prc" data-type="concierto">
+          <div class="prc-header">
+            <span class="tag tag-concierto">concierto</span>
+            <span style="font-size:10px;color:var(--muted);font-family:'Space Mono',monospace;margin-left:auto;">hace 1 semana</span>
+          </div>
+          <div class="prc-subject">◦ Pulp — Movistar Arena, Buenos Aires (jun 2026)</div>
+          <div class="prc-text">"Jarvis Cocker tiene 60 años y sigue siendo el performer más magnético que vi en mi vida. Hicieron todo el setlist de Different Class y el estadio enloqueció. Si vuelven, comprá entradas sin pensarlo."</div>
+          <div class="prc-footer">
+            <div class="stars">★★★★★</div>
+            <div style="display:flex;gap:12px;align-items:center;">
+              <span class="rc-likes">♡ 241</span>
+              <span class="rc-likes">💬 38</span>
+              <span class="prc-date">13 jun 2026</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="prc" data-type="album">
+          <div class="prc-header">
+            <span class="tag tag-album">álbum</span>
+            <span style="font-size:10px;color:var(--muted);font-family:'Space Mono',monospace;margin-left:auto;">hace 2 semanas</span>
+          </div>
+          <div class="prc-subject">◦ Short n' Sweet — Sabrina Carpenter (2024)</div>
+          <div class="prc-text">"Producción impecable en cada track. Carpenter encontró su voz definitiva — tiene la personalidad y la pluma para quedarse. El pop tiene nueva reina."</div>
+          <div class="prc-footer">
+            <div class="stars">★★★★☆</div>
+            <div style="display:flex;gap:12px;align-items:center;">
+              <span class="rc-likes">♡ 189</span>
+              <span class="rc-likes">💬 27</span>
+              <span class="prc-date">2 jun 2026</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="prc" data-type="album">
+          <div class="prc-header">
+            <span class="tag tag-album">álbum</span>
+            <span style="font-size:10px;color:var(--muted);font-family:'Space Mono',monospace;margin-left:auto;">hace 3 semanas</span>
+          </div>
+          <div class="prc-subject">◦ The Great Impersonator — Halsey (2024)</div>
+          <div class="prc-text">"Un disco conceptual que nadie esperaba. Halsey recorre géneros como si fueran disfraces — country, glam rock, folk — y en cada track convence. El pop más arriesgado del año."</div>
+          <div class="prc-footer">
+            <div class="stars">★★★★☆</div>
+            <div style="display:flex;gap:12px;align-items:center;">
+              <span class="rc-likes">♡ 156</span>
+              <span class="rc-likes">💬 21</span>
+              <span class="prc-date">28 may 2026</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="prc" data-type="vinilo">
+          <div class="prc-header">
+            <span class="tag tag-vinilo">vinilo</span>
+            <span style="font-size:10px;color:var(--muted);font-family:'Space Mono',monospace;margin-left:auto;">hace 1 mes</span>
+          </div>
+          <div class="prc-subject">◦ Rumours — Fleetwood Mac (reedición 180g, 2024)</div>
+          <div class="prc-text">"Compré la reedición de 180g en Zuvela Discos. El prensado es impecable. 'The Chain' tiene una profundidad de bajo que en streaming suena plano. Para arrancar una colección, este es EL disco."</div>
+          <div class="prc-footer">
+            <div class="stars">★★★★★</div>
+            <div style="display:flex;gap:12px;align-items:center;">
+              <span class="rc-likes">♡ 113</span>
+              <span class="rc-likes">💬 15</span>
+              <span class="prc-date">10 may 2026</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align:center;margin-top:20px;">
+          <button class="btn">ver las 48 reseñas →</button>
+        </div>
+      </div>
+
+      <!-- TAB: LISTAS -->
+      <div class="tab-content" id="tab-listas">
+        <div class="lista-card">
+          <div class="lista-name">✦ Los mejores álbumes de 2024</div>
+          <div class="lista-meta">12 discos · actualizada 12 jun 2026 · ♡ 89</div>
+          <div class="lista-tracks">
+            <div class="lista-track"><span class="lista-track-num">01</span> BRAT — Charli XCX</div>
+            <div class="lista-track"><span class="lista-track-num">02</span> Short n' Sweet — Sabrina Carpenter</div>
+            <div class="lista-track"><span class="lista-track-num">03</span> The Great Impersonator — Halsey</div>
+            <div class="lista-track"><span class="lista-track-num">04</span> Manning Fireworks — MJ Lenderman</div>
+            <div class="lista-track" style="color:var(--muted);">+ 8 más...</div>
+          </div>
+        </div>
+        <div class="lista-card">
+          <div class="lista-name">💿 Vinilos que quiero conseguir</div>
+          <div class="lista-meta">8 discos · actualizada hace 3 días · ♡ 44</div>
+          <div class="lista-tracks">
+            <div class="lista-track"><span class="lista-track-num">01</span> Kind of Blue — Miles Davis (primera prensa)</div>
+            <div class="lista-track"><span class="lista-track-num">02</span> In Rainbows — Radiohead (box set)</div>
+            <div class="lista-track"><span class="lista-track-num">03</span> Loveless — My Bloody Valentine</div>
+            <div class="lista-track" style="color:var(--muted);">+ 5 más...</div>
+          </div>
+        </div>
+        <div class="lista-card">
+          <div class="lista-name">🎤 Shows que vi en vivo</div>
+          <div class="lista-meta">23 conciertos · actualizada 14 jun 2026 · ♡ 67</div>
+          <div class="lista-tracks">
+            <div class="lista-track"><span class="lista-track-num">01</span> Pulp — Movistar Arena BsAs (jun 2026)</div>
+            <div class="lista-track"><span class="lista-track-num">02</span> Nicki Nicole — Movistar Arena (jun 2026)</div>
+            <div class="lista-track"><span class="lista-track-num">03</span> Feria del Vinilo — La Rural (sep 2025)</div>
+            <div class="lista-track" style="color:var(--muted);">+ 20 más...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: GUARDADOS -->
+      <div class="tab-content" id="tab-guardados">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="prc">
+            <div class="prc-header">
+              <div class="avatar av-g" style="width:30px;height:30px;font-size:10px;">SV</div>
+              <div style="font-size:12px;font-weight:600;">Sol V.</div>
+              <span class="tag tag-artista" style="margin-left:auto;font-size:8px;">artista</span>
+            </div>
+            <div class="prc-subject" style="font-size:10px;">◦ Khruangbin — discografía</div>
+            <div class="prc-text" style="font-size:11px;">"Imposible elegir un favorito. Empezá por Con Todo El Mundo."</div>
+            <div class="stars" style="font-size:11px;">★★★★★</div>
+          </div>
+          <div class="prc">
+            <div class="prc-header">
+              <div class="avatar av-y" style="width:30px;height:30px;font-size:10px;">LS</div>
+              <div style="font-size:12px;font-weight:600;">Lauti S.</div>
+              <span class="tag tag-vinilo" style="margin-left:auto;font-size:8px;">vinilo</span>
+            </div>
+            <div class="prc-subject" style="font-size:10px;">◦ Kind of Blue — Miles Davis</div>
+            <div class="prc-text" style="font-size:11px;">"Primera edición. El sonido analógico no tiene comparación."</div>
+            <div class="stars" style="font-size:11px;">★★★★★</div>
+          </div>
+          <div class="prc">
+            <div class="prc-header">
+              <div class="avatar av-o" style="width:30px;height:30px;font-size:10px;">CR</div>
+              <div style="font-size:12px;font-weight:600;">Caro R.</div>
+              <span class="tag tag-concierto" style="margin-left:auto;font-size:8px;">show</span>
+            </div>
+            <div class="prc-subject" style="font-size:10px;">◦ Rosalía — LUX TOUR preview</div>
+            <div class="prc-text" style="font-size:11px;">"La producción visual va a ser una locura."</div>
+            <div class="stars" style="font-size:11px;">⭐ pendiente</div>
+          </div>
+          <div class="prc">
+            <div class="prc-header">
+              <div class="avatar av-v" style="width:30px;height:30px;font-size:10px;">JR</div>
+              <div style="font-size:12px;font-weight:600;">Juan R.</div>
+              <span class="tag tag-album" style="margin-left:auto;font-size:8px;">álbum</span>
+            </div>
+            <div class="prc-subject" style="font-size:10px;">◦ Manning Fireworks — MJ Lenderman</div>
+            <div class="prc-text" style="font-size:11px;">"El indie rock más honesto del año."</div>
+            <div class="stars" style="font-size:11px;">★★★★★</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: ACTIVIDAD -->
+      <div class="tab-content" id="tab-actividad">
+        <div class="activity-item">
+          <div class="ac-icon">✍️</div>
+          <div>
+            <div class="ac-text"><strong>@Carla06</strong> publicó una reseña de <strong>BRAT — Charli XCX</strong> · ★★★★★</div>
+            <div class="ac-time">hace 2 días</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="ac-icon">♡</div>
+          <div>
+            <div class="ac-text"><strong>@Carla06</strong> le dio ♡ a la reseña de <strong>@lautisonic</strong> sobre Kind of Blue</div>
+            <div class="ac-time">hace 3 días</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="ac-icon">📋</div>
+          <div>
+            <div class="ac-text"><strong>@Carla06</strong> actualizó su lista <strong>"Los mejores álbumes de 2024"</strong></div>
+            <div class="ac-time">hace 4 días</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="ac-icon">✍️</div>
+          <div>
+            <div class="ac-text"><strong>@Carla06</strong> publicó una reseña de <strong>Pulp — Movistar Arena jun 2026</strong> · ★★★★★</div>
+            <div class="ac-time">hace 1 semana</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="ac-icon">👥</div>
+          <div>
+            <div class="ac-text"><strong>@solvibes</strong> empezó a seguir a <strong>@Carla06</strong></div>
+            <div class="ac-time">hace 1 semana</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="ac-icon">✍️</div>
+          <div>
+            <div class="ac-text"><strong>@Carla06</strong> publicó una reseña de <strong>Short n' Sweet — Sabrina Carpenter</strong> · ★★★★☆</div>
+            <div class="ac-time">hace 2 semanas</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="profile-sidebar">
+
+      <!-- LISTENING NOW -->
+      <div class="listening-now">
+        <div class="ln-label"><div class="ln-dot"></div>escuchando ahora</div>
+        <div class="ln-track">Von Dutch</div>
+        <div class="ln-artist">Charli XCX · BRAT</div>
+        <div class="ln-bar"><div class="ln-fill"></div></div>
+      </div>
+
+      <!-- TOP ALBUMS -->
+      <div class="sc">
+  <div class="sc-title">◈ ÁLBUMES FAVORITOS</div>
+  <div class="top-albums">
+    
+    <div class="album-item">
+      <img src="img/brat.jpg" alt="BRAT" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; margin: 0 auto 8px auto; display: block;">
+      <div class="album-name">BRAT</div>
+    </div>
+    
+    <div class="album-item">
+      <img src="img/fleetwood-mac.jpg" alt="Rumours" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; margin: 0 auto 8px auto; display: block;">
+      <div class="album-name">Rumours</div>
+    </div>
+    
+    <div class="album-item">
+      <img src="img/different class.jpg" alt="Different Class" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; margin: 0 auto 8px auto; display: block;">
+      <div class="album-name">Different Class</div>
+    </div>
+    
+    <div class="album-item">
+      <img src="img/In the Aeroplane Over the Sea.jpg" alt="In the Aeroplane" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; margin: 0 auto 8px auto; display: block;">
+      <div class="album-name">In the Aeroplane</div>
+    </div>
+    
+    <div class="album-item">
+      <img src="img/short n sweet.jpg" alt="Short n' Sweet" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; margin: 0 auto 8px auto; display: block;">
+      <div class="album-name">Short n' Sweet</div>
+    </div>
+    
+    <div class="album-item">
+      <img src="img/Random access memory.jpg" alt="RAM" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; margin: 0 auto 8px auto; display: block;">
+      <div class="album-name">RAM</div>
+    </div>
+    
+  </div>
+</div>
+
+      <!-- STATS CARD -->
+      <div class="sc">
+        <div class="sc-title">◈ ESTADÍSTICAS</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:12px;color:var(--muted);">álbumes reseñados</span>
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--green);">28</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:12px;color:var(--muted);">conciertos reseñados</span>
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--orange);">14</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:12px;color:var(--muted);">vinilos reseñados</span>
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--yellow);">6</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:12px;color:var(--muted);">rating promedio</span>
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--vl);">4.3</span>
+          </div>
+          <div style="height:1px;background:var(--border);"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:12px;color:var(--muted);">género más reseñado</span>
+            <span class="tag tag-album">indie pop</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- WRITE CTA -->
+      <div class="sc" style="text-align:center;border:1.5px dashed var(--blight);">
+        <div style="font-size:24px;margin-bottom:8px;">✍️</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;color:var(--vl);margin-bottom:6px;">ESCRIBÍ UNA RESEÑA</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:12px;line-height:1.5;">Compartí tu opinión con la comunidad NOIZE.</div>
+        <a href="resenas.html" class="btn btn-green" style="display:block;text-align:center;justify-content:center;">empezar →</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div id="chat-flotante" class="chat-widget">
+  <div class="chat-header">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <div class="avatar av-v" style="width: 24px; height: 24px; font-size: 10px;">CR</div>
+      <span>Carla06</span>
+    </div>
+    <button onclick="cerrarChat()" class="close-chat">✕</button>
+  </div>
+  
+  <div class="chat-body">
+    <p class="chat-msg received">¡Hola! Qué buena tu última reseña de Charli XCX, opino igual 🟩✨</p>
+  </div>
+  
+  <div class="chat-footer">
+    <input type="text" placeholder="Escribí un mensaje...">
+    <button class="btn-enviar">➤</button>
+  </div>
+</div>
+
+<div id="footer-root"></div>
+
+<script src="shared.js"></script>
+<script>
+initPage('resenas.html'); // perfil linked from reseñas
+
+function switchTab(id, btn) {
+  document.querySelectorAll('.ptab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-'+id).classList.add('active');
+}
+
+function filterPrc(btn, type) {
+  document.querySelectorAll('.filter-bar .pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.prc').forEach(c => {
+    c.style.display = (type === 'all' || c.dataset.type === type) ? '' : 'none';
+  });
+}
+
+// FUNCIONES DEL CHAT FLOTANTE
+  function abrirChat() {
+    document.getElementById('chat-flotante').classList.add('open');
+  }
+
+  function cerrarChat() {
+    document.getElementById('chat-flotante').classList.remove('open');
+  }
+
+</script>
+</body>
+</html>

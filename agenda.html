@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="img/vynil.png" type="image/png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOIZE — Agenda · Conciertos Buenos Aires 2026</title>
+<link rel="stylesheet" href="shared.css">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+.page-hero { padding:56px clamp(16px,4vw,48px) 40px; background:var(--s1); border-bottom:1px solid var(--border); }
+
+/* CALENDAR STRIP */
+.cal-strip { display:flex; gap:6px; overflow-x:auto; padding-bottom:8px; scrollbar-width:none; margin-bottom:28px; }
+.cal-strip::-webkit-scrollbar { display:none; }
+.cal-month { flex-shrink:0; border:1px solid var(--border); border-radius:10px; overflow:hidden; min-width:110px; cursor:pointer; transition:border-color .2s; }
+.cal-month:hover,.cal-month.active { border-color:var(--green); }
+.cal-month-head { background:var(--s3); padding:6px 12px; font-family:'Bebas Neue',sans-serif; font-size:14px; letter-spacing:2px; color:var(--green); }
+.cal-month-count { padding:4px 12px 6px; font-size:10px; font-family:'Space Mono',monospace; color:var(--muted); }
+
+/* EVENT CARD — new design with photo placeholder */
+.event-card {
+  background:var(--s2); border:1px solid var(--border); border-radius:var(--r);
+  display:grid; grid-template-columns:200px 1fr; overflow:hidden;
+  transition:border-color .2s, transform .2s; position:relative;
+}
+.event-card:hover { border-color:var(--blight); transform:translateY(-2px); }
+.event-card[data-color="orange"] { border-left:3px solid var(--orange); }
+.event-card[data-color="violet"] { border-left:3px solid var(--violet); }
+.event-card[data-color="green"]  { border-left:3px solid var(--green); }
+.event-card[data-color="yellow"] { border-left:3px solid var(--yellow); }
+
+/* PHOTO PLACEHOLDER */
+.ev-photo {
+  position:relative; overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
+  min-height:160px;
+}
+.ev-photo-bg {
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+}
+.ev-photo-emoji { font-size:56px; opacity:.18; position:relative; z-index:1; }
+.ev-photo-label {
+  position:absolute; bottom:8px; left:8px; right:8px; z-index:3;
+  font-family:'Space Mono',monospace; font-size:8px; letter-spacing:1.5px;
+  text-transform:uppercase; color:rgba(255,255,255,.45); text-align:center;
+  background:rgba(0,0,0,.4); border-radius:4px; padding:3px 6px;
+}
+.ev-photo-initials {
+  font-family:'Bebas Neue',sans-serif; font-size:52px; letter-spacing:3px;
+  line-height:1; position:relative; z-index:2; text-align:center;
+}
+
+/* gradient overlays per artist */
+.grad-violet { background:linear-gradient(135deg,#2d0e50 0%,#1a0830 60%,#0d0d0d 100%); }
+.grad-orange { background:linear-gradient(135deg,#6a2500 0%,#2a1000 60%,#0d0d0d 100%); }
+.grad-green  { background:linear-gradient(135deg,#0d3d00 0%,#061a00 60%,#0d0d0d 100%); }
+.grad-yellow { background:linear-gradient(135deg,#3a2800 0%,#1a1000 60%,#0d0d0d 100%); }
+.grad-teal   { background:linear-gradient(135deg,#003a3a 0%,#001414 60%,#0d0d0d 100%); }
+
+/* vinyl ring deco */
+.vinyl-ring {
+  position:absolute; border-radius:50%; border:1px solid rgba(255,255,255,.07);
+  top:50%; left:50%; transform:translate(-50%,-50%);
+  animation:spin-slow 20s linear infinite;
+}
+@keyframes spin-slow { to { transform:translate(-50%,-50%) rotate(360deg); } }
+
+/* sound wave deco */
+.wave-lines {
+  position:absolute; bottom:0; left:0; right:0; height:40px; z-index:1; opacity:.15;
+}
+
+/* EVENT INFO */
+.ev-info { padding:18px 20px; display:flex; flex-direction:column; gap:6px; }
+.ev-date-row { display:flex; align-items:center; gap:10px; }
+.ev-date-badge {
+  font-family:'Bebas Neue',sans-serif; font-size:13px; letter-spacing:1px;
+  padding:3px 10px; border-radius:6px; background:var(--s3);
+}
+.ev-date-badge.orange { color:var(--orange); border:1px solid var(--orange); }
+.ev-date-badge.violet { color:var(--vl); border:1px solid var(--violet); }
+.ev-date-badge.green  { color:var(--green); border:1px solid var(--green); }
+.ev-date-badge.yellow { color:var(--yellow); border:1px solid var(--yellow); }
+
+.ev-title { font-weight:700; font-size:17px; line-height:1.2; }
+.ev-subtitle { font-size:12px; color:var(--muted); font-style:italic; }
+.ev-venue { font-size:11px; color:var(--muted); font-family:'Space Mono',monospace; }
+.ev-tags-row { display:flex; gap:6px; flex-wrap:wrap; margin-top:2px; }
+.ev-bottom { margin-top:auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; padding-top:10px; border-top:1px solid var(--border); }
+.ev-price { font-family:'Space Mono',monospace; font-size:11px; color:var(--green); }
+.ev-time  { font-family:'Space Mono',monospace; font-size:11px; color:var(--muted); }
+.ticket-btn {
+  display:inline-flex; align-items:center; gap:5px;
+  font-size:10px; font-family:'Space Mono',monospace; letter-spacing:1px; text-transform:uppercase;
+  padding:7px 14px; border-radius:8px; background:var(--green); color:#000; font-weight:700;
+  text-decoration:none; transition:background .2s; white-space:nowrap;
+}
+.ticket-btn:hover { background:#50ff30; }
+.ticket-btn.free { background:var(--s3); color:var(--green); border:1px solid var(--green); font-weight:400; }
+.ticket-btn.tbc  { background:var(--s3); color:var(--muted); cursor:default; }
+
+/* AGENDA LAYOUT */
+.agenda-layout { display:grid; grid-template-columns:1fr 280px; gap:24px; align-items:start; }
+.sidebar { position:sticky; top:78px; }
+.sidebar-card { background:var(--s2); border:1px solid var(--border); border-radius:var(--r); padding:16px; margin-bottom:12px; }
+.sidebar-title { font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:2px; color:var(--green); margin-bottom:12px; }
+.legend-item { display:flex; align-items:center; gap:8px; font-size:11px; font-family:'Space Mono',monospace; color:var(--muted); margin-bottom:6px; }
+.legend-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.venue-link { display:block; text-decoration:none; padding:8px 0; border-bottom:1px solid var(--border); }
+.venue-link:last-child { border-bottom:none; }
+.venue-name { font-size:13px; font-weight:600; color:var(--text); }
+.venue-addr { font-size:11px; color:var(--muted); font-family:'Space Mono',monospace; }
+
+.ev-hidden { display:none !important; }
+.events-grid { display:flex; flex-direction:column; gap:14px; }
+
+/* PHOTOGRAPHER BADGE */
+.photo-badge {
+  position:absolute; top:8px; right:8px; z-index:4;
+  background:rgba(0,0,0,.7); border:1px solid rgba(255,255,255,.15);
+  border-radius:6px; padding:3px 8px;
+  font-family:'Space Mono',monospace; font-size:8px; letter-spacing:1px;
+  color:rgba(255,255,255,.5); text-transform:uppercase;
+}
+
+@media(max-width:900px) {
+  .agenda-layout { grid-template-columns:1fr; }
+  .sidebar { position:static; }
+  .event-card { grid-template-columns:140px 1fr; }
+}
+@media(max-width:560px) {
+  .event-card { grid-template-columns:1fr; }
+  .ev-photo { min-height:120px; }
+}
+</style>
+</head>
+<body>
+<div class="cur-dot"></div>
+<div class="cur-ring"></div>
+<nav style="display: flex; gap: 24px; padding: 16px clamp(16px, 4vw, 48px); border-bottom: 1px solid var(--border); background: var(--s1); align-items: center; justify-content: flex-start; width: 100%;">
+  
+  <a href="index.html" style="color: var(--green); font-family: 'Bebas Neue', sans-serif; font-size: clamp(24px, 3vw, 32px); text-decoration: none; letter-spacing: 4px; line-height: 1;">
+    NOIZE
+  </a>
+  
+  <div style="display: flex; gap: clamp(12px, 2vw, 24px); align-items: center; font-family: 'Space Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;">
+    <a href="index.html" style="color: var(--text); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--text)'">Inicio</a>
+    <a href="resenas.html" style="color: var(--text); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--text)'">Reseñas</a>
+    <a href="agenda.html" style="color: var(--text); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--text)'">Agenda</a>
+    <a href="mapa.html" style="color: var(--text); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--text)'">Mapa</a>
+    <a href="vinilos.html" style="color: var(--text); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--text)'">Vinilos</a>
+    <a href="perfil.html" style="color: var(--text); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--text)'">Perfil</a>
+  </div>
+  
+  <a href="login.html" style="margin-left: auto; color: var(--green); font-family: 'Space Mono', monospace; font-size: 11px; text-transform: uppercase; text-decoration: none; letter-spacing: 1px; border: 1px solid var(--green); padding: 6px 14px; border-radius: 8px; transition: background 0.2s, color 0.2s;" onmouseover="this.style.background='var(--green)'; this.style.color='#000'" onmouseout="this.style.background='none'; this.style.color='var(--green)'">
+    Ingresar
+  </a>
+
+</nav>
+<div id="ticker-root"></div>
+
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="eyebrow">◆ Buenos Aires · 2026</div>
+    <h1 class="h1">AGENDA DE EVENTOS</h1>
+    <p style="color:var(--muted);font-size:15px;line-height:1.7;">Todos los conciertos, festivales y ferias musicales confirmados. Datos reales, links directos a la compra de entradas.</p>
+  </div>
+</div>
+
+<section class="section">
+
+  <!-- MONTH STRIP -->
+  <div class="cal-strip" id="month-strip">
+    <div class="cal-month active" onclick="filterMonth(this,'all')"><div class="cal-month-head">TODOS</div><div class="cal-month-count">8 eventos</div></div>
+    <div class="cal-month" onclick="filterMonth(this,'jun')"><div class="cal-month-head">JUNIO</div><div class="cal-month-count">3 eventos</div></div>
+    <div class="cal-month" onclick="filterMonth(this,'jul')"><div class="cal-month-head">JULIO</div><div class="cal-month-count">2 evento</div></div>
+    <div class="cal-month" onclick="filterMonth(this,'ago')"><div class="cal-month-head">AGOSTO</div><div class="cal-month-count">1 eventos</div></div>
+    <div class="cal-month" onclick="filterMonth(this,'sep')"><div class="cal-month-head">SEPTIEMBRE</div><div class="cal-month-count">2 evento</div></div>
+    <div class="cal-month" onclick="filterMonth(this,'oct')"><div class="cal-month-head">OCTUBRE</div><div class="cal-month-count">No hay eventos disponibles</div></div>
+    <div class="cal-month" onclick="filterMonth(this,'nov')"><div class="cal-month-head">NOVIEMBRE</div><div class="cal-month-count">No hay eventos disponibles</div></div>
+  </div>
+
+  <!-- GENRE FILTER -->
+  <div class="filter-bar" style="margin-bottom:24px;">
+    <button class="pill active" onclick="filterGenre(this,'all')">todos</button>
+    <button class="pill" onclick="filterGenre(this,'rock')">🎸 rock</button>
+    <button class="pill" onclick="filterGenre(this,'pop')">🎤 pop</button>
+    <button class="pill" onclick="filterGenre(this,'electronica')">⚡ electrónica</button>
+    <button class="pill" onclick="filterGenre(this,'indie')">🌿 indie</button>
+    <button class="pill" onclick="filterGenre(this,'urbano')">🎵 urbano</button>
+    <button class="pill" onclick="filterGenre(this,'festival')">🎪 festival</button>
+  </div>
+
+  <div class="agenda-layout">
+    <div class="events-grid" id="events-list">
+
+      <div class="event-card" data-color="orange" data-month="jun" data-genre="rock">
+      <div class="ev-photo" style="background: none;">
+      <img src="img/Seru-Giran.jpg" alt="Show de Serú Girán" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;">
+      <div class="ev-photo-label" style="z-index: 2;">cobertura fotográfica · noize</div>
+    </div>
+    <div class="ev-info">
+      <div class="ev-date-row">
+        <span class="ev-date-badge orange">19 JUN 2026</span>
+        <span style="font-size:10px;font-family:'Space Mono',monospace;color:var(--muted);">21:00 hs</span>
+      </div>
+      <div class="ev-title">Serú Girán por Lebón y Aznar</div>
+      <div class="ev-subtitle">Homenaje a la banda fundamental del rock argentino</div>
+      <div class="ev-venue">📍 Movistar Arena · Av. Humboldt 450, Villa Crespo</div>
+      <div class="ev-tags-row">
+        <span class="tag tag-rock">rock nacional</span>
+      </div>
+      <div class="ev-bottom">
+        <div>
+          <div class="ev-price">desde $35.000</div>
+          <div class="ev-time">Movistar Arena · Cap. 15.000</div>
+        </div>
+        <a href="https://www.movistararena.com.ar" target="_blank" rel="noopener" class="ticket-btn">🎟️ entradas</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="event-card" data-color="violet" data-month="jun" data-genre="rock">
+    <div class="ev-photo" style="background: none;">
+      <img src="img/Babasonicos.jpg" alt="Show de Babasónicos" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;">
+      <div class="ev-photo-label" style="z-index: 2;">cobertura fotográfica · noize</div>
+    </div>
+    <div class="ev-info">
+      <div class="ev-date-row">
+        <span class="ev-date-badge violet">25 JUN 2026</span>
+        <span style="font-size:10px;font-family:'Space Mono',monospace;color:var(--muted);">21:00 hs</span>
+      </div>
+      <div class="ev-title">Babasónicos</div>
+      <div class="ev-subtitle">La banda repasa sus mayores éxitos en formato estadio</div>
+      <div class="ev-venue">📍 Movistar Arena · Av. Humboldt 450, Villa Crespo</div>
+      <div class="ev-tags-row">
+        <span class="tag tag-rock">rock</span>
+        <span class="tag tag-indie">pop alternativo</span>
+      </div>
+      <div class="ev-bottom">
+        <div>
+          <div class="ev-price">desde $40.000</div>
+          <div class="ev-time">Movistar Arena · Cap. 15.000</div>
+        </div>
+        <a href="https://www.movistararena.com.ar" target="_blank" rel="noopener" class="ticket-btn">🎟️ entradas</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="event-card" data-color="orange" data-month="jun" data-genre="rock">
+    <div class="ev-photo" style="background: none;">
+      <img src="img/fito paez.jpg" alt="Show de Fito Páez" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;">
+      <div class="ev-photo-label" style="z-index: 2;">cobertura fotográfica · noize</div>
+    </div>
+    <div class="ev-info">
+      <div class="ev-date-row">
+        <span class="ev-date-badge orange">29 JUN 2026</span>
+        <span style="font-size:10px;font-family:'Space Mono',monospace;color:var(--muted);">21:00 hs</span>
+      </div>
+      <div class="ev-title">Fito Páez — Sale el Sol Tour</div>
+      <div class="ev-subtitle">Himnos clásicos y versiones renovadas en vivo</div>
+      <div class="ev-venue">📍 Movistar Arena · Av. Humboldt 450, Villa Crespo</div>
+      <div class="ev-tags-row">
+        <span class="tag tag-rock">rock nacional</span>
+      </div>
+      <div class="ev-bottom">
+        <div>
+          <div class="ev-price">desde $45.000</div>
+          <div class="ev-time">Movistar Arena · Cap. 15.000</div>
+        </div>
+        <a href="https://www.movistararena.com.ar" target="_blank" rel="noopener" class="ticket-btn">🎟️ entradas</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="event-card" data-color="orange" data-month="jul" data-genre="rock">
+    <div class="ev-photo" style="background: none;">
+      <img src="img/divididos.jpg" alt="Show de Divididos" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;">
+      <div class="ev-photo-label" style="z-index: 2;">cobertura fotográfica · noize</div>
+    </div>
+    <div class="ev-info">
+      <div class="ev-date-row">
+        <span class="ev-date-badge orange">04 JUL 2026</span>
+        <span style="font-size:10px;font-family:'Space Mono',monospace;color:var(--muted);">20:30 hs</span>
+      </div>
+      <div class="ev-title">Divididos</div>
+      <div class="ev-subtitle">La aplanadora del rock vuelve a detonar Villa Crespo</div>
+      <div class="ev-venue">📍 Movistar Arena · Av. Humboldt 450, Villa Crespo</div>
+      <div class="ev-tags-row">
+        <span class="tag tag-rock">rock nacional</span>
+        <span class="tag tag-rock">hard rock</span>
+      </div>
+      <div class="ev-bottom">
+        <div>
+          <div class="ev-price">desde $38.000</div>
+          <div class="ev-time">Movistar Arena · Cap. 15.000</div>
+        </div>
+        <a href="https://www.movistararena.com.ar" target="_blank" rel="noopener" class="ticket-btn">🎟️ entradas</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="event-card" data-color="green" data-month="jul" data-genre="electronica">
+    <div class="ev-photo" style="background: none; position: relative; width: 200px; min-height: 160px; overflow: hidden;">
+      <img src="img/Eelke Kleijn.jpg" alt="Eelke Kleijn en Palacio Alsina" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;">
+      <div class="ev-photo-label" style="z-index: 2;">cobertura fotográfica · noize</div>
+    </div>
+    <div class="ev-info">
+      <div class="ev-date-row">
+        <span class="ev-date-badge green">25 JUL 2026</span>
+        <span style="font-size:10px;font-family:'Space Mono',monospace;color:var(--muted);">23:00 hs</span>
+      </div>
+      <div class="ev-title">Desert in Me x Eelke Kleijn</div>
+      <div class="ev-subtitle">El reconocido productor y DJ llega con un set extendido</div>
+      <div class="ev-venue">📍 Palacio Alsina · Adolfo Alsina 940, Monserrat</div>
+      <div class="ev-tags-row">
+        <span class="tag tag-electro">electrónica</span>
+        <span class="tag tag-electro">house</span>
+      </div>
+      <div class="ev-bottom">
+        <div>
+          <div class="ev-price">desde $25.000</div>
+          <div class="ev-time">Palacio Alsina</div>
+        </div>
+        <a href="https://planout.ar/eventos/es/HomePlanout" target="_blank" rel="noopener" class="ticket-btn">🎟️ entradas</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="event-card" data-color="violet" data-month="ago" data-genre="pop">
+    <div class="ev-photo" style="background: none;">
+      <img src="img/rosalia.jpg" alt="Show de Rosalía" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;">
+      <div class="ev-photo-label" style="z-index: 2;">cobertura fotográfica · noize</div>
+    </div>
+    <div class="ev-info">
+      <div class="ev-date-row">
+        <span class="ev-date-badge violet">01 AGO 2026</span>
+        <span style="font-size:10px;font-family:'Space Mono',monospace;color:var(--muted);">21:00 hs</span>
+      </div>
+      <div class="ev-title">Rosalía — LUX TOUR</div>
+      <div class="ev-subtitle">La artista catalana presenta su nueva mezcla de flamenco y electrónica</div>
+      <div class="ev-venue">📍 Movistar Arena · Av. Humboldt 450, Villa Crespo</div>
+      <div class="ev-tags-row">
+        <span class="tag tag-pop">pop</span>
+        <span class="tag tag-electro">flamenco pop</span>
+      </div>
+      <div class="ev-bottom">
+        <div>
+          <div class="ev-price">desde $75.000</div>
+          <div class="ev-time">Movistar Arena · Cap. 15.000</div>
+        </div>
+        <a href="https://www.movistararena.com.ar" target="_blank" rel="noopener" class="ticket-btn">🎟️ entradas</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="event-card" data-color="green" data-month="sep" data-genre="electronica">
+    <div class="ev-photo" style="background: none;">
+      <img src="img/Fatboy-Slim.jpg" alt="Show de Fatboy Slim" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;">
+      <div class="ev-photo-label" style="z-index: 2;">cobertura fotográfica · noize</div>
+    </div>
+    <div class="ev-info">
+      <div class="ev-date-row">
+        <span class="ev-date-badge green">05 SEP 2026</span>
+        <span style="font-size:10px;font-family:'Space Mono',monospace;color:var(--muted);">22:00 hs</span>
+      </div>
+      <div class="ev-title">Fatboy Slim</div>
+      <div class="ev-subtitle">El ícono del big beat trae su arsenal de clásicos</div>
+      <div class="ev-venue">📍 Movistar Arena · Av. Humboldt 450, Villa Crespo</div>
+      <div class="ev-tags-row">
+        <span class="tag tag-electro">electrónica</span>
+        <span class="tag tag-electro">big beat</span>
+      </div>
+      <div class="ev-bottom">
+        <div>
+          <div class="ev-price">desde $55.000</div>
+          <div class="ev-time">Movistar Arena · Cap. 15.000</div>
+        </div>
+        <a href="https://www.movistararena.com.ar" target="_blank" rel="noopener" class="ticket-btn">🎟️ entradas</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="event-card" data-color="yellow" data-month="sep" data-genre="pop">
+    <div class="ev-photo" style="background: none;">
+      <img src="img/morat.jpg" alt="Show de Morat" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;">
+      <div class="ev-photo-label" style="z-index: 2;">cobertura fotográfica · noize</div>
+    </div>
+    <div class="ev-info">
+      <div class="ev-date-row">
+        <span class="ev-date-badge yellow">24 SEP 2026</span>
+        <span style="font-size:10px;font-family:'Space Mono',monospace;color:var(--muted);">21:00 hs</span>
+      </div>
+      <div class="ev-title">Morat</div>
+      <div class="ev-subtitle">La exitosa banda colombiana de regreso en Argentina</div>
+      <div class="ev-venue">📍 Movistar Arena · Av. Humboldt 450, Villa Crespo</div>
+      <div class="ev-tags-row">
+        <span class="tag tag-pop">folk pop</span>
+        <span class="tag tag-pop">pop rock</span>
+      </div>
+      <div class="ev-bottom">
+        <div>
+          <div class="ev-price">desde $60.000</div>
+          <div class="ev-time">Movistar Arena · Cap. 15.000</div>
+        </div>
+        <a href="https://www.movistararena.com.ar" target="_blank" rel="noopener" class="ticket-btn">🎟️ entradas</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-card">
+        <div class="sidebar-title">◈ REFERENCIAS</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div>conciertos · rock · urbano</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--violet)"></div>pop · alternativo · dance</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>festivales · ferias</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div>pop romántico · acústico</div>
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);line-height:1.6;">
+          Las fotos con el badge <span style="color:var(--green);font-family:'Space Mono',monospace;font-size:10px;">📷 tu foto acá</span> son placeholders para cobertura propia de NOIZE.
+        </div>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="sidebar-title">◈ DÓNDE COMPRAR</div>
+        <a href="https://www.ticketek.com.ar" target="_blank" rel="noopener" class="venue-link"><div class="venue-name">Ticketek Argentina</div><div class="venue-addr">ticketek.com.ar</div></a>
+        <a href="https://www.passline.com" target="_blank" rel="noopener" class="venue-link"><div class="venue-name">Passline</div><div class="venue-addr">passline.com</div></a>
+        <a href="https://www.allaccess.com.ar" target="_blank" rel="noopener" class="venue-link"><div class="venue-name">All Access</div><div class="venue-addr">allaccess.com.ar</div></a>
+        <a href="https://www.entradafan.com.ar" target="_blank" rel="noopener" class="venue-link"><div class="venue-name">EntradaFan</div><div class="venue-addr">entradafan.com.ar</div></a>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="sidebar-title">◈ VENUES</div>
+        <a href="https://www.movistararena.com.ar" target="_blank" rel="noopener" class="venue-link"><div class="venue-name">Movistar Arena</div><div class="venue-addr">Av. Humboldt 450 · Villa Crespo</div></a>
+        <div class="venue-link"><div class="venue-name">Teatro Gran Rex</div><div class="venue-addr">Av. Corrientes 857 · CABA</div></div>
+        <div class="venue-link"><div class="venue-name">Teatro Vorterix</div><div class="venue-addr">Av. F. Lacroze 3455 · Chacarita</div></div>
+        <div class="venue-link"><div class="venue-name">Ciudad Cultural Konex</div><div class="venue-addr">Av. San Juan 4555 · Boedo</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="footer-root"></div>
+<script src="shared.js"></script>
+<script>
+initPage('agenda.html');
+function filterMonth(el, month) {
+  document.querySelectorAll('.cal-month').forEach(m => m.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.event-card').forEach(c => {
+    c.classList.toggle('ev-hidden', month !== 'all' && c.dataset.month !== month);
+  });
+}
+function filterGenre(el, genre) {
+  document.querySelectorAll('.filter-bar .pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.event-card').forEach(c => {
+    c.classList.toggle('ev-hidden', genre !== 'all' && c.dataset.genre !== genre);
+  });
+}
+</script>
+</body>
+</html>
