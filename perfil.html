@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" href="img/vynil.png" type="image/png">
+<link rel="icon" href="vynil.png" type="image/png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NOIZE — Perfil · @Carla06</title>
 <link rel="stylesheet" href="shared.css">
@@ -543,13 +543,13 @@
     <button onclick="cerrarChat()" class="close-chat">✕</button>
   </div>
   
-  <div class="chat-body">
+  <div class="chat-body" id="caja-mensajes">
     <p class="chat-msg received">¡Hola! Qué buena tu última reseña de Charli XCX, opino igual 🟩✨</p>
   </div>
   
   <div class="chat-footer">
-    <input type="text" placeholder="Escribí un mensaje...">
-    <button class="btn-enviar">➤</button>
+    <input type="text" id="input-chat" placeholder="Escribí un mensaje...">
+    <button class="btn-enviar" onclick="enviarMensaje()">➤</button>
   </div>
 </div>
 
@@ -582,6 +582,45 @@ function filterPrc(btn, type) {
   function cerrarChat() {
     document.getElementById('chat-flotante').classList.remove('open');
   }
+
+  // FUNCIÓN PARA ENVIAR EL MENSAJE
+  function enviarMensaje() {
+    const input = document.getElementById('input-chat');
+    const cajaMensajes = document.getElementById('caja-mensajes');
+    const texto = input.value.trim();
+
+    if (texto !== "") {
+      // Creamos el nuevo globito de texto
+      const nuevoMensaje = document.createElement('p');
+      nuevoMensaje.textContent = texto;
+      
+      // Le damos estilo para que parezca enviado por el usuario (verde y a la derecha)
+      nuevoMensaje.className = 'chat-msg'; 
+      nuevoMensaje.style.background = 'var(--green)';
+      nuevoMensaje.style.color = '#000';
+      nuevoMensaje.style.marginLeft = 'auto'; // Esto lo empuja a la derecha
+      nuevoMensaje.style.padding = '8px 12px';
+      nuevoMensaje.style.borderRadius = '12px';
+      nuevoMensaje.style.borderBottomRightRadius = '4px'; // Detalle del globito
+      nuevoMensaje.style.marginBottom = '8px';
+      nuevoMensaje.style.width = 'fit-content';
+      nuevoMensaje.style.maxWidth = '85%';
+      
+      // Lo inyectamos en el chat
+      cajaMensajes.appendChild(nuevoMensaje);
+      
+      // Limpiamos la barra y bajamos el scroll
+      input.value = "";
+      cajaMensajes.scrollTop = cajaMensajes.scrollHeight;
+    }
+  }
+
+  // Hacer que también se envíe al apretar la tecla "Enter"
+  document.getElementById('input-chat').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+      enviarMensaje();
+    }
+  });
 
 </script>
 </body>
